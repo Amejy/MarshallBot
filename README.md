@@ -49,6 +49,7 @@ The system is designed to:
    - `make logs`
    - `make logs-tunnel`
    - `make tunnel-url`
+   - `make tunnel-open`
    - `make logs-prod`
 5. Stop everything:
    - `make down`

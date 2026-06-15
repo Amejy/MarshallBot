@@ -3,7 +3,7 @@ COMPOSE_DEV = $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml
 COMPOSE_PROD = $(COMPOSE) -f docker-compose.yml -f docker-compose.prod.yml
 COMPOSE_TUNNEL = $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.tunnel.yml
 
-.PHONY: up up-dev down logs ps build rebuild restart clean api tunnel-url
+.PHONY: up up-dev down logs ps build rebuild restart clean api tunnel-url tunnel-open
 
 up:
 	$(COMPOSE) up --build -d
@@ -31,6 +31,9 @@ logs-tunnel:
 
 tunnel-url:
 	$(COMPOSE_TUNNEL) logs -f cloudflared | python3 backend/scripts/print_tunnel_url.py
+
+tunnel-open:
+	$(COMPOSE_TUNNEL) logs -f cloudflared | python3 backend/scripts/open_tunnel_dashboard.py
 
 ps:
 	$(COMPOSE) ps
