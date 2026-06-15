@@ -50,6 +50,7 @@ The system is designed to:
    - `make logs-tunnel`
    - `make tunnel-url`
    - `make tunnel-open`
+   - `make verify-deploy`
    - `make logs-prod`
 5. Stop everything:
    - `make down`

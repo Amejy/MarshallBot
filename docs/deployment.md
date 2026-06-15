@@ -85,7 +85,8 @@ make clean-prod
 5. Run `make up-tunnel`.
 6. Run `make tunnel-url` to print the public Cloudflare URL from the logs.
 7. Or run `make tunnel-open` to print the URL and open the dashboard in your browser.
-8. Open the dashboard through that URL at `/dashboard`.
+8. Run `make verify-deploy BASE_URL=https://your-tunnel.trycloudflare.com` to smoke-test the public URL.
+9. Open the dashboard through that URL at `/dashboard`.
 
 ## Notes
 
