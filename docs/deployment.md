@@ -94,6 +94,14 @@ If you want a single command that starts the stack and verifies the tunnel as so
 make deploy-tunnel
 ```
 
+Before you start the deployment, run:
+
+```bash
+make release-check
+```
+
+That catches missing Telegram credentials or an empty source setup before you waste time on the live stack.
+
 ## Notes
 
 - The API will work without Postgres for a limited preview, but the full system needs Postgres and Redis.

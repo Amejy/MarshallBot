@@ -3,7 +3,7 @@ COMPOSE_DEV = $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml
 COMPOSE_PROD = $(COMPOSE) -f docker-compose.yml -f docker-compose.prod.yml
 COMPOSE_TUNNEL = $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.tunnel.yml
 
-.PHONY: up up-dev down logs ps build rebuild restart clean api tunnel-url tunnel-open verify-deploy deploy-tunnel
+.PHONY: up up-dev down logs ps build rebuild restart clean api tunnel-url tunnel-open verify-deploy deploy-tunnel release-check
 
 up:
 	$(COMPOSE) up --build -d
@@ -40,6 +40,9 @@ verify-deploy:
 
 deploy-tunnel:
 	$(COMPOSE_TUNNEL) up --build -d && $(COMPOSE_TUNNEL) logs -f cloudflared | python3 backend/scripts/check_tunnel_deployment.py
+
+release-check:
+	python3 backend/scripts/release_check.py
 
 ps:
 	$(COMPOSE) ps
