@@ -48,6 +48,7 @@ The system is designed to:
    - `make ps-prod`
    - `make logs`
    - `make logs-tunnel`
+   - `make tunnel-url`
    - `make logs-prod`
 5. Stop everything:
    - `make down`

@@ -83,7 +83,7 @@ make clean-prod
    - `telegram_session_string`
 4. Add any launchpad, Telegram, or social presets you want enabled.
 5. Run `make up-tunnel`.
-6. Check the tunnel logs for the public Cloudflare URL.
+6. Run `make tunnel-url` to print the public Cloudflare URL from the logs.
 7. Open the dashboard through that URL at `/dashboard`.
 
 ## Notes
