@@ -1,6 +1,7 @@
 COMPOSE ?= docker-compose
 COMPOSE_DEV = $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml
 COMPOSE_PROD = $(COMPOSE) -f docker-compose.yml -f docker-compose.prod.yml
+COMPOSE_TUNNEL = $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.tunnel.yml
 
 .PHONY: up up-dev down logs ps build rebuild restart clean api
 
@@ -9,6 +10,9 @@ up:
 
 up-dev:
 	$(COMPOSE_DEV) up --build -d
+
+up-tunnel:
+	$(COMPOSE_TUNNEL) up --build -d
 
 up-prod:
 	$(COMPOSE_PROD) up --build -d
@@ -22,11 +26,17 @@ logs:
 logs-prod:
 	$(COMPOSE_PROD) logs -f --tail=100
 
+logs-tunnel:
+	$(COMPOSE_TUNNEL) logs -f --tail=100
+
 ps:
 	$(COMPOSE) ps
 
 ps-prod:
 	$(COMPOSE_PROD) ps
+
+ps-tunnel:
+	$(COMPOSE_TUNNEL) ps
 
 build:
 	$(COMPOSE) build
@@ -40,14 +50,23 @@ restart:
 restart-prod:
 	$(COMPOSE_PROD) down && $(COMPOSE_PROD) up --build -d
 
+restart-tunnel:
+	$(COMPOSE_TUNNEL) down && $(COMPOSE_TUNNEL) up --build -d
+
 clean:
 	$(COMPOSE) down -v --remove-orphans
 
 clean-prod:
 	$(COMPOSE_PROD) down -v --remove-orphans
 
+clean-tunnel:
+	$(COMPOSE_TUNNEL) down -v --remove-orphans
+
 api:
 	$(COMPOSE_DEV) up --build -d api
 
 api-prod:
 	$(COMPOSE_PROD) up --build -d api
+
+api-tunnel:
+	$(COMPOSE_TUNNEL) up --build -d api

@@ -40,14 +40,18 @@ The system is designed to:
 3. Start the stack:
    - `make up` starts the backend, worker, beat, Postgres, and Redis without exposing the API on your host
    - `make up-dev` starts the same stack and exposes the API at `http://localhost:8000`
+   - `make up-tunnel` starts the same stack plus Cloudflare Tunnel for a public URL
    - `make up-prod` starts the same stack with automatic restarts and exposes the API on `http://localhost:8000`
 4. Check status:
    - `make ps`
+   - `make ps-tunnel`
    - `make ps-prod`
    - `make logs`
+   - `make logs-tunnel`
    - `make logs-prod`
 5. Stop everything:
    - `make down`
+   - `make clean-tunnel`
    - `make clean-prod`
 
 ## Environment Variables
@@ -68,7 +72,7 @@ The main values you may need are:
 - The API service is exposed only in the dev compose file, so it will not collide with a local app already using port `8000`.
 - Postgres and Redis are kept internal to Docker by default, so they will not take over `5432` or `6379` on your machine.
 
-## Production Deployment
+## Deployment
 
 See [docs/deployment.md](docs/deployment.md) for the exact production command sequence and verification steps.
 

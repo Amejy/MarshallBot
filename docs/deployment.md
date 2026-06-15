@@ -1,6 +1,6 @@
 # Deployment
 
-## Recommended production stack
+## Recommended deployment stack
 
 Use Docker Compose with:
 
@@ -9,28 +9,9 @@ Use Docker Compose with:
 - `beat`
 - `postgres`
 - `redis`
+- `cloudflared`
 
-The production override exposes the API on port `8000` and keeps the services restarting automatically.
-
-## Render deployment
-
-The repository includes a Render blueprint at [`render.yaml`](/home/mohammed/MarshallBot/render.yaml).
-
-### What it covers
-
-- API web service
-- Celery worker
-- Celery beat
-- schema bootstrap before deploy
-
-### What you still need to add in Render
-
-- PostgreSQL connection string
-- Redis connection string
-- Telegram bot credentials
-- Telegram alert chat ID
-
-The blueprint leaves those as unset so Render will prompt you during setup.
+The tunnel override keeps everything local and exposes the API through a Cloudflare Tunnel URL.
 
 ## Prerequisites
 
@@ -44,7 +25,21 @@ The blueprint leaves those as unset so Render will prompt you during setup.
    - `telegram_session_string`
 4. Add any launchpad, Telegram, or social presets you want enabled.
 
-## Production start
+## Start with tunnel
+
+```bash
+make up-tunnel
+```
+
+If you prefer the long form:
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.tunnel.yml up --build -d
+```
+
+## Optional production start
+
+If you only want the local stack without the tunnel:
 
 ```bash
 make up-prod
@@ -76,13 +71,20 @@ http://127.0.0.1:8000/dashboard
 make clean-prod
 ```
 
-## Render flow
+## Cloudflare flow
 
-1. Create a new Render Blueprint from this repository.
-2. Import `render.yaml`.
-3. Paste your `DATABASE_URL`, `REDIS_URL`, and Telegram secrets when Render prompts you.
-4. Deploy the services.
-5. Open `/health` and `/dashboard` on the deployed API.
+1. Install Docker and Docker Compose on the machine that will run MarshallBot.
+2. Copy `.env.example` to `.env`.
+3. Fill in the required values:
+   - `telegram_bot_token`
+   - `telegram_chat_id`
+   - `telegram_api_id`
+   - `telegram_api_hash`
+   - `telegram_session_string`
+4. Add any launchpad, Telegram, or social presets you want enabled.
+5. Run `make up-tunnel`.
+6. Check the tunnel logs for the public Cloudflare URL.
+7. Open the dashboard through that URL at `/dashboard`.
 
 ## Notes
 
