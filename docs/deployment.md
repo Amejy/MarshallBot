@@ -88,6 +88,12 @@ make clean-prod
 8. Run `make verify-deploy BASE_URL=https://your-tunnel.trycloudflare.com` to smoke-test the public URL.
 9. Open the dashboard through that URL at `/dashboard`.
 
+If you want a single command that starts the stack and verifies the tunnel as soon as it appears, run:
+
+```bash
+make deploy-tunnel
+```
+
 ## Notes
 
 - The API will work without Postgres for a limited preview, but the full system needs Postgres and Redis.
