@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MarshallBot Dashboard</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #07111f;
+        --panel: #0d1a2d;
+        --panel-2: #10243d;
+        --text: #e6eefb;
+        --muted: #8ba6c7;
+        --accent: #35d07f;
+        --border: rgba(255,255,255,0.08);
+      }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        background: radial-gradient(circle at top, #132643 0%, var(--bg) 45%);
+        color: var(--text);
+      }
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      .hero {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .hero h1 {
+        margin: 0;
+        font-size: 32px;
+      }
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin-bottom: 24px;
+      }
+      .card {
+        background: linear-gradient(180deg, var(--panel), var(--panel-2));
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px;
+      }
+      .card .label {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+      .card .value {
+        font-size: 30px;
+        font-weight: 700;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+      }
+      th, td {
+        padding: 12px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+      }
+      tr:hover td {
+        background: rgba(255,255,255,0.02);
+      }
+      .pill {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(53, 208, 127, 0.15);
+        color: #8bf0b6;
+        font-size: 12px;
+      }
+      .pill.warn {
+        background: rgba(255, 196, 61, 0.15);
+        color: #ffd88a;
+      }
+      .pill.bad {
+        background: rgba(255, 110, 110, 0.16);
+        color: #ffb4b4;
+      }
+      .pill.up {
+        background: rgba(53, 208, 127, 0.18);
+        color: #bdf4d5;
+      }
+      .pill.down {
+        background: rgba(255, 110, 110, 0.16);
+        color: #ffb4b4;
+      }
+      .pill.flat {
+        background: rgba(139, 166, 199, 0.14);
+        color: #d6e4f5;
+      }
+      .banner {
+        margin-bottom: 16px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        color: var(--muted);
+      }
+      .section-gap-lg {
+        margin-top: 16px;
+      }
+      .section-gap-md {
+        margin-bottom: 16px;
+      }
+      .error {
+        color: #ffb4b4;
+      }
+      .error-pre {
+        color: #fff;
+        padding: 24px;
+      }
+      .why {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .why span {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        font-size: 12px;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .action-btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 6px 10px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+      }
+      .action-btn:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.16);
+      }
+      .action-btn.danger {
+        color: #ffb4b4;
+      }
+      .project-btn {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: #8bf0b6;
+        padding: 0;
+        cursor: pointer;
+        text-align: left;
+        font: inherit;
+      }
+      .project-btn:hover {
+        text-decoration: underline;
+      }
+      .detail-grid {
+        display: grid;
+        gap: 10px;
+      }
+      .detail-row {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 12px;
+        align-items: start;
+      }
+      .detail-label {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .detail-value {
+        color: var(--text);
+        overflow-wrap: anywhere;
+      }
+      .search-box {
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 10px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        outline: none;
+      }
+      .search-box::placeholder {
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="hero">
+        <h1>MarshallBot Dashboard</h1>
+        <p>Discovery, ranking, and source health at a glance.</p>
+        <input id="project-search" class="search-box" type="search" placeholder="Search projects or sources..." autocomplete="off" />
+        <div class="actions">
+          <button class="action-btn" onclick="sendTestAlert()">Send Test Alert</button>
+          <button class="action-btn" onclick="downloadStateExport()">Export State</button>
+        </div>
+      </div>
+      <div class="banner" id="status-banner">Loading live data...</div>
+      <div class="grid" id="summary"></div>
+      <div class="card section-gap-md">
+        <div class="label">Today Activity</div>
+        <div class="grid" id="activity"></div>
+      </div>
+      <div class="card">
+        <div class="label">Top Ranked</div>
+        <div id="ranking"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Top Today</div>
+        <div id="today"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Recent Alerts</div>
+        <div id="alerts"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Recent Social Profiles</div>
+        <div id="social-profiles"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Alert Health</div>
+        <div id="alert-health"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Runtime Config</div>
+        <div id="runtime-config"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Config History</div>
+        <div id="runtime-config-history"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Runtime Health</div>
+        <div id="runtime-health"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Telegram Research</div>
+        <div id="telegram-research"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Telegram Onboarding</div>
+        <div id="telegram-onboarding"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Source Templates</div>
+        <div id="source-templates"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Active Sources</div>
+        <div id="source-selection"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Coverage Health</div>
+        <div id="source-coverage"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Project Detail</div>
+        <div id="project-detail">Select a project from Top Ranked, Top Today, or Recent Alerts.</div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Search Results</div>
+        <div id="search-results">Start typing to find projects and sources.</div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Source Trends</div>
+        <div id="trends"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Source Movers</div>
+        <div id="movers"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Source Health</div>
+        <div id="health"></div>
+      </div>
+      <div class="card section-gap-lg">
+        <div class="label">Source Detail</div>
+        <div id="source-detail">Select a source from Source Health or Source Trends.</div>
+      </div>
+    </div>
+    <script>
+      const demoData = {
+        summary: {
+          tracked_projects: 84,
+          qualified_projects: 29,
+          alerts_sent_today: 14,
+          active_sources: 6,
+          skipped_duplicates: 31,
+        },
+        activity: {
+          discovered_today: 47,
+          enriched_today: 33,
+          scored_today: 29,
+          alerted_today: 14,
+        },
+        ranking: [
+          { canonical_name: "NovaPepe", chain: "solana", current_score: 94, launch_source: "pump.fun", status: "qualified", score_reasons: { explanations: ["Telegram link present", "Website looks complete", "Trusted discovery source"] } },
+          { canonical_name: "BSC Turbo", chain: "bsc", current_score: 91, launch_source: "website", status: "watch", score_reasons: { explanations: ["Website looks complete", "Strong social activity"] } },
+          { canonical_name: "MoonSnek", chain: "solana", current_score: 88, launch_source: "telegram", status: "qualified", score_reasons: { explanations: ["Telegram link present", "Healthy community activity"] } },
+        ],
+        today: [
+          { canonical_name: "NovaPepe", chain: "solana", current_score: 94, launch_source: "pump.fun", status: "qualified", score_reasons: { explanations: ["Telegram link present", "Website looks complete", "Trusted discovery source"] } },
+          { canonical_name: "MoonSnek", chain: "solana", current_score: 88, launch_source: "telegram", status: "qualified", score_reasons: { explanations: ["Telegram link present", "Healthy community activity"] } },
+        ],
+        alerts: [
+          { canonical_name: "NovaPepe", chain: "solana", score_at_send: 94, launch_source: "pump.fun", delivery_status: "sent", sent_at: "2026-06-11T10:30:00Z" },
+          { canonical_name: "MoonSnek", chain: "solana", score_at_send: 88, launch_source: "telegram", delivery_status: "sent", sent_at: "2026-06-11T09:40:00Z" },
+        ],
+        social_profiles: [
+          { canonical_name: "NovaPepe", chain: "solana", platform: "x", url: "https://x.com/novapepe", handle: "novapepe", engagement_score: 82.1, last_checked_at: "2026-06-11T10:42:00Z" },
+          { canonical_name: "MoonSnek", chain: "solana", platform: "telegram", url: "https://t.me/moonsnek", handle: "moonsnek", engagement_score: 74.8, last_checked_at: "2026-06-11T09:51:00Z" },
+        ],
+        alert_health: {
+          totals: { sent: 14, pending: 1, failed: 1, total: 16 },
+          issues: [
+            { id: 101, canonical_name: "Alpha", chain: "solana", score_at_send: 86, launch_source: "pump.fun", delivery_status: "pending", retry_count: 1, next_retry_at: "2026-06-11T11:10:00Z", last_error: "timeout", sent_at: "2026-06-11T10:55:00Z" },
+            { id: 102, canonical_name: "Beta", chain: "bsc", score_at_send: 82, launch_source: "website", delivery_status: "failed", retry_count: 3, next_retry_at: "2026-06-11T12:12:00Z", last_error: "rate limited", sent_at: "2026-06-11T10:12:00Z" },
+          ],
+        },
+        runtime_config: {
+          daily_alert_limit: 30,
+          min_score_to_alert: 75,
+          ranking_weights: {
+            freshness: 0.20,
+            telegram_presence: 0.15,
+            social_activity: 0.15,
+            website_quality: 0.15,
+            growth_rate: 0.15,
+            source_quality: 0.10,
+            community_activity: 0.10,
+            spam_penalty: 0.10,
+          },
+        },
+        runtime_config_history: [
+          { changed_at: "2026-06-11T11:15:00Z", changed_by: "dashboard", daily_alert_limit: 30, min_score_to_alert: 75, ranking_weights: { freshness: 0.2 } },
+        ],
+        runtime_health: {
+          beat: { timestamp: "2026-06-11T11:20:00Z", age_seconds: 24, healthy: true },
+          worker: { timestamp: "2026-06-11T11:19:45Z", age_seconds: 39, healthy: true },
+          worker_count: 2,
+          workers: [
+            { name: "celery@worker-1", online: true, active: 1, reserved: 0, scheduled: 0 },
+            { name: "celery@worker-2", online: true, active: 0, reserved: 0, scheduled: 1 },
+          ],
+        },
+        telegram_research: {
+          ready: false,
+          missing_fields: ["telegram_api_id", "telegram_api_hash", "telegram_session_string"],
+          api_id_set: false,
+          api_hash_set: false,
+          session_string_set: false,
+        },
+        telegram_onboarding: {
+          chain: "solana",
+          requested: ["AlphaMemeWatch"],
+          channels: ["AlphaMemeWatch"],
+          invalid_channels: [],
+          count: 1,
+          example_json: { name: "telegram-research", enabled: true, mode: "research", chain: "solana", limit: 100, channels: ["AlphaMemeWatch"] },
+        },
+        source_templates: [
+          { mode: "pumpfun", label: "Pump.fun launchpad", description: "Use the dedicated Pump.fun collector for Solana launches.", example: { name: "pump-fun", chain: "solana", enabled: true, mode: "pumpfun", url: "https://pump.fun/" } },
+          { mode: "rss", label: "RSS feed", description: "Announcement feeds that publish project launches in RSS 2.0 format.", example: { name: "news-feed", chain: "solana", enabled: true, mode: "rss", url: "https://example.com/feed.xml" } },
+          { mode: "atom", label: "Atom feed", description: "Announcement feeds that publish project launches in Atom format.", example: { name: "atom-feed", chain: "bsc", enabled: true, mode: "atom", url: "https://example.com/feed.atom" } },
+          { mode: "sitemap", label: "Sitemap crawler", description: "Website root or sitemap URL. The crawler resolves robots.txt and sitemap.xml automatically.", example: { name: "site-crawler", chain: "solana", enabled: true, mode: "sitemap", url: "https://example.com", limit: 25 } },
+        ],
+        source_selection: {
+          launchpads: { requested: ["pump-fun", "four-meme"], active: ["pump-fun", "four-meme"], count: 2, unknown: [] },
+          telegram_channels: { requested: ["alpha-meme-watch"], active: ["alpha-meme-watch"], count: 1, unknown: [] },
+          keywords: ["fair launch", "stealth launch"],
+          blacklisted_domains: ["example-scam.com"],
+          blacklisted_telegram: ["https://t.me/example-scam"],
+          trusted_sources: ["pump-fun", "four-meme"],
+        },
+        source_coverage: {
+          ready: true,
+          active_sources: 3,
+          active_launchpads: 2,
+          active_telegram_channels: 1,
+          source_templates: 8,
+          keywords: 2,
+          trusted_sources: 2,
+          unknown_sources: 0,
+        },
+        source_detail: {
+          source: { account_identifier: "pump.fun", platform: "launchpad", status: "active", trust_level: 92 },
+          health: { account_identifier: "pump.fun", platform: "launchpad", status: "active", trust_level: 92, project_count: 42, qualified_count: 18, avg_score: 83.4, health_score: 96.2, last_seen_at: "2026-06-11T11:20:00Z", last_project_seen_at: "2026-06-11T11:19:00Z" },
+        },
+        trends: [
+          { account_identifier: "pump.fun", platform: "launchpad", status: "active", trust_level: 92, project_count: 42, qualified_count: 18, avg_score: 83.4 },
+          { account_identifier: "new website feeds", platform: "web", status: "watch", trust_level: 74, project_count: 15, qualified_count: 4, avg_score: 72.1 },
+        ],
+        movers: [
+          { account_identifier: "pump.fun", platform: "launchpad", status: "active", trust_level: 92, project_count: 42, qualified_count: 18, avg_score: 83.4, projects_24h: 12, qualified_24h: 6, avg_score_24h: 86.2, momentum_score: 80.4 },
+          { account_identifier: "new website feeds", platform: "web", status: "watch", trust_level: 74, project_count: 15, qualified_count: 4, avg_score: 72.1, projects_24h: 6, qualified_24h: 1, avg_score_24h: 74.0, momentum_score: 29.8 },
+        ],
+        health: [
+          { account_identifier: "pump.fun", platform: "launchpad", status: "active", trust_level: 92, project_count: 42, qualified_count: 18, avg_score: 83.4, health_score: 96.2 },
+          { account_identifier: "crypto-breaking-news", platform: "launchpad", status: "active", trust_level: 60, project_count: 8, qualified_count: 2, avg_score: 68.1, health_score: 72.4 },
+        ],
+      };
+
+      function renderDashboard(data, bannerText) {
+        const banner = document.getElementById('status-banner');
+        banner.textContent = bannerText;
+        banner.classList.remove('error');
+        const summary = data.summary || {};
+        const summaryEl = document.getElementById('summary');
+        summaryEl.innerHTML = Object.entries(summary).map(([k, v]) => `
+          <div class="card">
+            <div class="label">${k.replaceAll('_', ' ')}</div>
+            <div class="value">${v}</div>
+          </div>
+        `).join('');
+        const activityEl = document.getElementById('activity');
+        activityEl.innerHTML = Object.entries(data.activity || {}).map(([k, v]) => `
+          <div class="card">
+            <div class="label">${k.replaceAll('_', ' ')}</div>
+            <div class="value">${v}</div>
+          </div>
+        `).join('');
+        const rankingEl = document.getElementById('ranking');
+        rankingEl.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Chain</th><th>Score</th><th>Source</th><th>Move</th><th>Status</th>
+                <th>Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(data.ranking || []).map(item => `
+                <tr>
+                  <td>${renderProjectButton(item.canonical_name || '', item.id)}</td>
+                  <td>${item.chain || ''}</td>
+                  <td><span class="pill">${item.current_score ?? 0}</span></td>
+                  <td>${item.launch_source || ''}</td>
+                  <td>${renderTrustMovementBadge(item.source_trust_movement, item.source_trust_movement_direction)}</td>
+                  <td>${item.status || ''}</td>
+                  <td>${renderWhy(item)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        const todayEl = document.getElementById('today');
+        todayEl.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Chain</th><th>Score</th><th>Source</th><th>Move</th><th>Status</th>
+                <th>Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(data.today || [])
+                .slice(0, 15)
+                .map(item => `
+                  <tr>
+                    <td>${renderProjectButton(item.canonical_name || '', item.id)}</td>
+                    <td>${item.chain || ''}</td>
+                    <td><span class="pill">${item.current_score ?? 0}</span></td>
+                    <td>${item.launch_source || ''}</td>
+                    <td>${renderTrustMovementBadge(item.source_trust_movement, item.source_trust_movement_direction)}</td>
+                    <td>${item.status || ''}</td>
+                    <td>${renderWhy(item)}</td>
+                  </tr>
+                `).join('')}
+            </tbody>
+          </table>
+        `;
+        const trendsEl = document.getElementById('trends');
+        trendsEl.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th><th>Platform</th><th>Status</th><th>Trust</th><th>Move</th><th>Projects</th><th>Qualified</th><th>Avg Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(data.trends || []).map(item => `
+                <tr>
+                  <td>${renderSourceButton(item.account_identifier || '', item.account_identifier)}</td>
+                  <td>${item.platform || ''}</td>
+                  <td>${item.status || ''}</td>
+                  <td>${renderTrustBadge(item.trust_level)}</td>
+                  <td>${renderTrustMovementBadge(item.trust_movement, item.trust_movement_direction)}</td>
+                  <td>${item.project_count ?? 0}</td>
+                  <td>${item.qualified_count ?? 0}</td>
+                  <td>${Number(item.avg_score || 0).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        const moversEl = document.getElementById('movers');
+        moversEl.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th><th>Platform</th><th>Status</th><th>Trust</th><th>Move</th><th>24h Projects</th><th>24h Qualified</th><th>24h Avg Score</th><th>Momentum</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(data.movers || []).map(item => `
+                <tr>
+                  <td>${renderSourceButton(item.account_identifier || '', item.account_identifier)}</td>
+                  <td>${item.platform || ''}</td>
+                  <td>${item.status || ''}</td>
+                  <td>${renderTrustBadge(item.trust_level)}</td>
+                  <td>${renderTrustMovementBadge(item.trust_movement, item.trust_movement_direction)}</td>
+                  <td>${item.projects_24h ?? 0}</td>
+                  <td>${item.qualified_24h ?? 0}</td>
+                  <td>${Number(item.avg_score_24h || 0).toFixed(2)}</td>
+                  <td><span class="pill">${Number(item.momentum_score || 0).toFixed(1)}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        const alertsEl = document.getElementById('alerts');
+        alertsEl.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Chain</th><th>Score</th><th>Source</th><th>Move</th><th>Status</th><th>Sent</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(data.alerts || []).map(item => `
+                <tr>
+                  <td>${renderProjectButton(item.canonical_name || '', item.project_id)}</td>
+                  <td>${item.chain || ''}</td>
+                  <td><span class="pill">${Number(item.score_at_send || 0).toFixed(1)}</span></td>
+                  <td>${item.launch_source || ''}</td>
+                  <td>${renderTrustMovementBadge(item.source_trust_movement, item.source_trust_movement_direction)}</td>
+                  <td>${item.delivery_status || ''}</td>
+                  <td>${item.sent_at || ''}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        const alertHealthEl = document.getElementById('alert-health');
+        const alertHealth = data.alert_health || {};
+        const alertTotals = alertHealth.totals || {};
+        const alertIssues = alertHealth.issues || [];
+        alertHealthEl.innerHTML = `
+          <div class="grid">
+            <div class="card"><div class="label">Sent</div><div class="value">${alertTotals.sent ?? 0}</div></div>
+            <div class="card"><div class="label">Pending</div><div class="value">${alertTotals.pending ?? 0}</div></div>
+            <div class="card"><div class="label">Failed</div><div class="value">${alertTotals.failed ?? 0}</div></div>
+            <div class="card"><div class="label">Total</div><div class="value">${alertTotals.total ?? 0}</div></div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Chain</th><th>Score</th><th>Source</th><th>Status</th><th>Retry</th><th>Next Retry</th><th>Reason</th><th>Sent</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${alertIssues.length ? alertIssues.map(item => `
+                <tr>
+                  <td>${renderProjectButton(item.canonical_name || '', item.project_id)}</td>
+                  <td>${item.chain || ''}</td>
+                  <td><span class="pill">${Number(item.score_at_send || 0).toFixed(1)}</span></td>
+                  <td>${item.launch_source || ''}</td>
+                  <td>${item.delivery_status || ''}</td>
+                  <td>${item.retry_count ?? 0}</td>
+                  <td>${item.next_retry_at || ''}</td>
+                  <td>${item.last_error || ''}</td>
+                  <td>${item.sent_at || ''}</td>
+                  <td>${renderAlertActions(item)}</td>
+                </tr>
+              `).join('') : '<tr><td colspan="10"><span class="pill">No pending or failed alerts</span></td></tr>'}
+            </tbody>
+          </table>
+        `;
+        const socialProfilesEl = document.getElementById('social-profiles');
+        socialProfilesEl.innerHTML = renderSocialProfiles(data.social_profiles || []);
+        const runtimeConfigEl = document.getElementById('runtime-config');
+        runtimeConfigEl.innerHTML = renderRuntimeConfig(data.runtime_config || {});
+        const runtimeConfigHistoryEl = document.getElementById('runtime-config-history');
+        runtimeConfigHistoryEl.innerHTML = renderRuntimeConfigHistory(data.runtime_config_history || []);
+        const runtimeHealthEl = document.getElementById('runtime-health');
+        runtimeHealthEl.innerHTML = renderRuntimeHealth(data.runtime_health || {});
+        const telegramResearchEl = document.getElementById('telegram-research');
+        telegramResearchEl.innerHTML = renderTelegramResearch(data.telegram_research || {});
+        const telegramOnboardingEl = document.getElementById('telegram-onboarding');
+        telegramOnboardingEl.innerHTML = renderTelegramOnboarding(data.telegram_onboarding || {});
+        const sourceTemplatesEl = document.getElementById('source-templates');
+        sourceTemplatesEl.innerHTML = renderSourceTemplates(data.source_templates || []);
+        const sourceSelectionEl = document.getElementById('source-selection');
+        sourceSelectionEl.innerHTML = renderSourceSelection(data.source_selection || {});
+        const sourceCoverageEl = document.getElementById('source-coverage');
+        sourceCoverageEl.innerHTML = renderSourceCoverage(data.source_coverage || {});
+        const healthEl = document.getElementById('health');
+        healthEl.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th><th>Platform</th><th>Status</th><th>Trust</th><th>Move</th><th>Health</th><th>Projects</th><th>Qualified</th><th>Avg Score</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(data.health || []).map(item => `
+                <tr>
+                  <td>${item.account_identifier || ''}</td>
+                  <td>${item.platform || ''}</td>
+                  <td>${item.status || ''}</td>
+                  <td>${renderTrustBadge(item.trust_level)}</td>
+                  <td>${renderTrustMovementBadge(item.trust_movement, item.trust_movement_direction)}</td>
+                  <td><span class="pill">${Number(item.health_score || 0).toFixed(1)}</span></td>
+                  <td>${item.project_count ?? 0}</td>
+                  <td>${item.qualified_count ?? 0}</td>
+                  <td>${Number(item.avg_score || 0).toFixed(2)}</td>
+                  <td>${renderSourceActions(item)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        const sourceDetailEl = document.getElementById('source-detail');
+        sourceDetailEl.innerHTML = renderSourceDetail(data.source_detail || {});
+      }
+
+      function renderWhy(item) {
+        const explanations = item?.score_reasons?.explanations || item?.score_explanations || [];
+        if (!explanations.length) {
+          return '<span class="pill">No rationale</span>';
+        }
+        return `<div class="why">${explanations.slice(0, 3).map(reason => `<span>${reason}</span>`).join('')}</div>`;
+      }
+
+      function trustTier(trustLevel) {
+        const value = Number(trustLevel || 0);
+        if (value >= 85) return { label: 'Strong', className: 'pill' };
+        if (value >= 70) return { label: 'Healthy', className: 'pill' };
+        if (value >= 50) return { label: 'Watch', className: 'pill warn' };
+        return { label: 'Weak', className: 'pill bad' };
+      }
+
+      function renderTrustBadge(trustLevel) {
+        const tier = trustTier(trustLevel);
+        return `<span class="${tier.className}">${tier.label} · ${Number(trustLevel || 0).toFixed(1)}</span>`;
+      }
+
+      function renderTrustMovementBadge(trustMovement, direction) {
+        const value = Number(trustMovement || 0);
+        const safeDirection = direction || (value > 0 ? 'up' : value < 0 ? 'down' : 'flat');
+        const arrow = safeDirection === 'up' ? '↗' : safeDirection === 'down' ? '↘' : '→';
+        const signed = value > 0 ? `+${value.toFixed(1)}` : value < 0 ? value.toFixed(1) : '0.0';
+        return `<span class="pill ${safeDirection}">${arrow} ${signed}</span>`;
+      }
+
+      function renderProjectButton(label, projectId) {
+        if (!projectId) {
+          return label;
+        }
+        return `<button class="project-btn" onclick="openProject(${projectId})">${label}</button>`;
+      }
+
+      function renderSourceButton(label, accountIdentifier) {
+        if (!accountIdentifier) {
+          return label;
+        }
+        return `<button class="project-btn" onclick="openSource(${JSON.stringify(accountIdentifier)})">${label}</button>`;
+      }
+
+      function renderRuntimeConfig(runtimeConfig) {
+        const weights = runtimeConfig.ranking_weights || {};
+        return `
+          <div class="detail-grid">
+            <div class="detail-row"><div class="detail-label">Daily Alert Limit</div><div class="detail-value"><input id="runtime-daily-alert-limit" class="search-box" type="number" min="1" value="${runtimeConfig.daily_alert_limit ?? 30}" /></div></div>
+            <div class="detail-row"><div class="detail-label">Min Score</div><div class="detail-value"><input id="runtime-min-score-to-alert" class="search-box" type="number" min="0" max="100" step="0.1" value="${runtimeConfig.min_score_to_alert ?? 75}" /></div></div>
+            <div class="detail-row"><div class="detail-label">Freshness</div><div class="detail-value"><input id="weight-freshness" class="search-box" type="number" min="0" max="1" step="0.01" value="${weights.freshness ?? 0.2}" /></div></div>
+            <div class="detail-row"><div class="detail-label">Telegram Presence</div><div class="detail-value"><input id="weight-telegram_presence" class="search-box" type="number" min="0" max="1" step="0.01" value="${weights.telegram_presence ?? 0.15}" /></div></div>
+            <div class="detail-row"><div class="detail-label">Social Activity</div><div class="detail-value"><input id="weight-social_activity" class="search-box" type="number" min="0" max="1" step="0.01" value="${weights.social_activity ?? 0.15}" /></div></div>
+            <div class="detail-row"><div class="detail-label">Website Quality</div><div class="detail-value"><input id="weight-website_quality" class="search-box" type="number" min="0" max="1" step="0.01" value="${weights.website_quality ?? 0.15}" /></div></div>
+            <div class="detail-row"><div class="detail-label">Growth Rate</div><div class="detail-value"><input id="weight-growth_rate" class="search-box" type="number" min="0" max="1" step="0.01" value="${weights.growth_rate ?? 0.15}" /></div></div>
+            <div class="detail-row"><div class="detail-label">Source Quality</div><div class="detail-value"><input id="weight-source_quality" class="search-box" type="number" min="0" max="1" step="0.01" value="${weights.source_quality ?? 0.1}" /></div></div>
+            <div class="detail-row"><div class="detail-label">Community Activity</div><div class="detail-value"><input id="weight-community_activity" class="search-box" type="number" min="0" max="1" step="0.01" value="${weights.community_activity ?? 0.1}" /></div></div>
+            <div class="detail-row"><div class="detail-label">Spam Penalty</div><div class="detail-value"><input id="weight-spam_penalty" class="search-box" type="number" min="0" max="1" step="0.01" value="${weights.spam_penalty ?? 0.1}" /></div></div>
+            <div class="actions">
+              <button class="action-btn" onclick="saveRuntimeConfig()">Save Config</button>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderRuntimeHealth(runtimeHealth) {
+        const beat = runtimeHealth.beat || {};
+        const worker = runtimeHealth.worker || {};
+        const workers = runtimeHealth.workers || [];
+        const error = runtimeHealth.error ? `<div class="banner error section-gap-md">Runtime health degraded: ${runtimeHealth.error}</div>` : '';
+        return `
+          ${error}
+          <div class="grid">
+            <div class="card"><div class="label">Beat</div><div class="value">${beat.healthy ? 'OK' : 'Stale'}</div></div>
+            <div class="card"><div class="label">Worker</div><div class="value">${worker.healthy ? 'OK' : 'Stale'}</div></div>
+            <div class="card"><div class="label">Workers</div><div class="value">${runtimeHealth.worker_count ?? 0}</div></div>
+            <div class="card"><div class="label">Beat Age</div><div class="value">${beat.age_seconds ?? 'n/a'}</div></div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Online</th><th>Active</th><th>Reserved</th><th>Scheduled</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${workers.length ? workers.map(item => `
+                <tr>
+                  <td>${item.name || ''}</td>
+                  <td>${item.online ? 'yes' : 'no'}</td>
+                  <td>${item.active ?? 0}</td>
+                  <td>${item.reserved ?? 0}</td>
+                  <td>${item.scheduled ?? 0}</td>
+                </tr>
+              `).join('') : '<tr><td colspan="5"><span class="pill">No worker data available</span></td></tr>'}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function renderTelegramResearch(telegramResearch) {
+        const missing = telegramResearch.missing_fields || [];
+        const ready = Boolean(telegramResearch.ready);
+        return `
+          <div class="grid">
+            <div class="card"><div class="label">Status</div><div class="value">${ready ? 'Ready' : 'Missing'}</div></div>
+            <div class="card"><div class="label">API ID</div><div class="value">${telegramResearch.api_id_set ? 'Set' : 'Unset'}</div></div>
+            <div class="card"><div class="label">API Hash</div><div class="value">${telegramResearch.api_hash_set ? 'Set' : 'Unset'}</div></div>
+            <div class="card"><div class="label">Session</div><div class="value">${telegramResearch.session_string_set ? 'Set' : 'Unset'}</div></div>
+          </div>
+          <div class="section-gap-md">${missing.length ? `<span class="pill">Missing: ${missing.join(', ')}</span>` : '<span class="pill">Telegram research is ready</span>'}</div>
+        `;
+      }
+
+      function renderTelegramOnboarding(onboarding) {
+        const channels = onboarding.channels || [];
+        const invalid = onboarding.invalid_channels || [];
+        const example = onboarding.example_json || {};
+        return `
+          <div class="grid">
+            <div class="card"><div class="label">Valid Channels</div><div class="value">${onboarding.count ?? 0}</div></div>
+            <div class="card"><div class="label">Chain</div><div class="value">${onboarding.chain || 'solana'}</div></div>
+            <div class="card"><div class="label">Invalid</div><div class="value">${invalid.length}</div></div>
+            <div class="card"><div class="label">Ready</div><div class="value">${channels.length ? 'Yes' : 'No'}</div></div>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-row"><div class="detail-label">Channels</div><div class="detail-value">${channels.length ? channels.map(channel => `<span class="pill">${channel}</span>`).join(' ') : '<span class="pill">None</span>'}</div></div>
+            <div class="detail-row"><div class="detail-label">Invalid</div><div class="detail-value">${invalid.length ? invalid.map(channel => `<span class="pill bad">${channel}</span>`).join(' ') : '<span class="pill">None</span>'}</div></div>
+            <div class="detail-row"><div class="detail-label">Example</div><div class="detail-value"><pre class="error-pre">${JSON.stringify(example, null, 2)}</pre></div></div>
+          </div>
+        `;
+      }
+
+      function renderSourceTemplates(items) {
+        if (!items.length) {
+          return '<span class="pill">No source templates available</span>';
+        }
+        return `
+          <table>
+            <thead>
+              <tr>
+                <th>Mode</th><th>Label</th><th>Description</th><th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(item => `
+                <tr>
+                  <td>${item.mode || ''}</td>
+                  <td>${item.label || ''}</td>
+                  <td>${item.description || ''}</td>
+                  <td><pre class="error-pre">${JSON.stringify(item.example || {}, null, 2)}</pre></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function renderSourceSelection(selection) {
+        const launchpads = selection.launchpads || {};
+        const telegramChannels = selection.telegram_channels || {};
+        const listToPills = items => (items || []).length ? (items || []).map(item => `<span class="pill">${item}</span>`).join(' ') : '<span class="pill">None</span>';
+        return `
+          <div class="grid">
+            <div class="card"><div class="label">Launchpads</div><div class="value">${launchpads.count ?? 0}</div></div>
+            <div class="card"><div class="label">Telegram Channels</div><div class="value">${telegramChannels.count ?? 0}</div></div>
+            <div class="card"><div class="label">Keywords</div><div class="value">${(selection.keywords || []).length}</div></div>
+            <div class="card"><div class="label">Trusted Sources</div><div class="value">${(selection.trusted_sources || []).length}</div></div>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-row"><div class="detail-label">Active Launchpads</div><div class="detail-value">${listToPills(launchpads.active)}</div></div>
+            <div class="detail-row"><div class="detail-label">Active Telegram</div><div class="detail-value">${listToPills(telegramChannels.active)}</div></div>
+            <div class="detail-row"><div class="detail-label">Unrecognized</div><div class="detail-value">${listToPills([...(launchpads.unknown || []), ...(telegramChannels.unknown || [])])}</div></div>
+          </div>
+        `;
+      }
+
+      function renderSourceCoverage(coverage) {
+        const ready = Boolean(coverage.ready);
+        return `
+          <div class="grid">
+            <div class="card"><div class="label">Status</div><div class="value">${ready ? 'Healthy' : 'Needs work'}</div></div>
+            <div class="card"><div class="label">Active Sources</div><div class="value">${coverage.active_sources ?? 0}</div></div>
+            <div class="card"><div class="label">Launchpads</div><div class="value">${coverage.active_launchpads ?? 0}</div></div>
+            <div class="card"><div class="label">Telegram</div><div class="value">${coverage.active_telegram_channels ?? 0}</div></div>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-row"><div class="detail-label">Templates</div><div class="detail-value">${coverage.source_templates ?? 0}</div></div>
+            <div class="detail-row"><div class="detail-label">Keywords</div><div class="detail-value">${coverage.keywords ?? 0}</div></div>
+            <div class="detail-row"><div class="detail-label">Trusted Sources</div><div class="detail-value">${coverage.trusted_sources ?? 0}</div></div>
+            <div class="detail-row"><div class="detail-label">Unknown</div><div class="detail-value">${coverage.unknown_sources ?? 0}</div></div>
+          </div>
+        `;
+      }
+
+      function renderRuntimeConfigHistory(items) {
+        if (!items.length) {
+          return '<span class="pill">No config changes yet</span>';
+        }
+        return `
+          <table>
+            <thead>
+              <tr>
+                <th>Changed At</th><th>By</th><th>Daily Limit</th><th>Min Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(item => `
+                <tr>
+                  <td>${item.changed_at || ''}</td>
+                  <td>${item.changed_by || ''}</td>
+                  <td>${item.daily_alert_limit ?? 0}</td>
+                  <td>${Number(item.min_score_to_alert || 0).toFixed(1)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function renderSourceActions(item) {
+        const identifier = item?.account_identifier;
+        if (!identifier) {
+          return '<span class="pill">No source</span>';
+        }
+        return `
+          <div class="actions">
+            <button class="action-btn" onclick="openSource(${JSON.stringify(identifier)})">Open</button>
+            <button class="action-btn" onclick="sourceAction(${JSON.stringify(identifier)}, '/sources/accounts/${encodeURIComponent(identifier)}/approve')">Approve</button>
+            <button class="action-btn" onclick="sourceAction(${JSON.stringify(identifier)}, '/sources/accounts/${encodeURIComponent(identifier)}/watch')">Watch</button>
+            <button class="action-btn danger" onclick="sourceAction(${JSON.stringify(identifier)}, '/sources/accounts/${encodeURIComponent(identifier)}/reject')">Reject</button>
+          </div>
+        `;
+      }
+
+      function renderSocialProfiles(items) {
+        if (!items.length) {
+          return '<span class="pill">No social profiles yet</span>';
+        }
+        return `
+          <table>
+            <thead>
+              <tr>
+                <th>Project</th><th>Chain</th><th>Platform</th><th>Handle</th><th>Engagement</th><th>Checked</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(item => `
+                <tr>
+                  <td>${renderProjectButton(item.canonical_name || '', item.project_id)}</td>
+                  <td>${item.chain || ''}</td>
+                  <td>${item.platform || ''}</td>
+                  <td>${item.handle || ''}</td>
+                  <td><span class="pill">${Number(item.engagement_score || 0).toFixed(1)}</span></td>
+                  <td>${item.last_checked_at || ''}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function renderSourceDetail(data) {
+        const source = data.source || {};
+        const health = data.health || {};
+        const recentProjects = data.recent_projects || [];
+        const history = data.history || [];
+        if (!source.account_identifier) {
+          return '<span class="pill">No source selected</span>';
+        }
+        return `
+          <div class="detail-grid">
+            <div class="detail-row"><div class="detail-label">Account</div><div class="detail-value">${source.account_identifier || ''}</div></div>
+            <div class="detail-row"><div class="detail-label">Platform</div><div class="detail-value">${source.platform || ''}</div></div>
+            <div class="detail-row"><div class="detail-label">Status</div><div class="detail-value">${source.status || ''}</div></div>
+            <div class="detail-row"><div class="detail-label">Trust</div><div class="detail-value">${renderTrustBadge(source.trust_level)} ${renderTrustMovementBadge(data.trust_movement?.trust_movement, data.trust_movement?.trust_movement_direction)}<input id="source-trust-input" class="search-box" type="number" min="0" max="100" step="0.1" value="${source.trust_level ?? 0}" /></div></div>
+            <div class="detail-row"><div class="detail-label">Health</div><div class="detail-value"><span class="pill">${Number(health.health_score || 0).toFixed(1)}</span></div></div>
+            <div class="detail-row"><div class="detail-label">Projects</div><div class="detail-value">${health.project_count ?? 0}</div></div>
+            <div class="detail-row"><div class="detail-label">Qualified</div><div class="detail-value">${health.qualified_count ?? 0}</div></div>
+            <div class="detail-row"><div class="detail-label">Avg Score</div><div class="detail-value">${Number(health.avg_score || 0).toFixed(2)}</div></div>
+            <div class="detail-row"><div class="detail-label">Last Seen</div><div class="detail-value">${health.last_seen_at || ''}</div></div>
+            <div class="detail-row"><div class="detail-label">Last Project</div><div class="detail-value">${health.last_project_seen_at || ''}</div></div>
+            <div class="detail-row"><div class="detail-label">Recent Projects</div><div class="detail-value">${recentProjects.length ? `<table><thead><tr><th>Name</th><th>Score</th><th>Status</th><th>Seen</th></tr></thead><tbody>${recentProjects.map(project => `<tr><td>${renderProjectButton(project.canonical_name || '', project.id)}</td><td><span class="pill">${Number(project.current_score || 0).toFixed(1)}</span></td><td>${project.status || ''}</td><td>${project.last_seen_at || ''}</td></tr>`).join('')}</tbody></table>` : '<span class="pill">No recent projects</span>'}</div></div>
+            <div class="detail-row"><div class="detail-label">History</div><div class="detail-value">${history.length ? `<table><thead><tr><th>Changed At</th><th>By</th><th>Action</th><th>From</th><th>To</th><th>Trust</th><th>Move</th></tr></thead><tbody>${history.map(item => {
+              const trustBefore = Number(item.trust_before ?? 0);
+              const trustAfter = Number(item.trust_after ?? 0);
+              const move = item.trust_before == null || item.trust_after == null ? 0 : trustAfter - trustBefore;
+              return `<tr><td>${item.changed_at || ''}</td><td>${item.changed_by || ''}</td><td>${item.action || ''}</td><td>${item.status_before || ''}</td><td>${item.status_after || ''}</td><td>${item.trust_after ?? ''}</td><td>${renderTrustMovementBadge(move)}</td></tr>`;
+            }).join('')}</tbody></table>` : '<span class="pill">No source history</span>'}</div></div>
+            <div class="actions">
+              <button class="action-btn" onclick="saveSourceTrust(${JSON.stringify(source.account_identifier)})">Save Trust</button>
+              <button class="action-btn" onclick="sourceAction(${JSON.stringify(source.account_identifier)}, '/sources/accounts/${encodeURIComponent(source.account_identifier)}/approve')">Approve</button>
+              <button class="action-btn" onclick="sourceAction(${JSON.stringify(source.account_identifier)}, '/sources/accounts/${encodeURIComponent(source.account_identifier)}/watch')">Watch</button>
+              <button class="action-btn danger" onclick="sourceAction(${JSON.stringify(source.account_identifier)}, '/sources/accounts/${encodeURIComponent(source.account_identifier)}/reject')">Reject</button>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderAlertActions(item) {
+        const alertId = item?.id;
+        const status = (item?.delivery_status || '').toLowerCase();
+        if (!alertId) {
+          return '<span class="pill">No alert</span>';
+        }
+        if (status === 'sent') {
+          return '<span class="pill">Delivered</span>';
+        }
+        const retryCount = Number(item?.retry_count || 0);
+        const nextRetryAt = item?.next_retry_at ? new Date(item.next_retry_at) : null;
+        const retryLimitReached = retryCount >= 3;
+        const backoffActive = nextRetryAt && !Number.isNaN(nextRetryAt.getTime()) && nextRetryAt > new Date();
+        if (retryLimitReached) {
+          return '<span class="pill">Retry limit reached</span>';
+        }
+        if (backoffActive) {
+          return `<span class="pill">Retry after ${nextRetryAt.toLocaleString()}</span>`;
+        }
+        return `
+          <div class="actions">
+            <button class="action-btn" onclick="retryAlert(${alertId})">Retry</button>
+          </div>
+        `;
+      }
+
+      function formatTimestamp(date) {
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      function renderSearchResults(items, query) {
+        const container = document.getElementById('search-results');
+        if (!query) {
+          container.innerHTML = '<span class="pill">Start typing to search</span>';
+          return;
+        }
+        if (!items.length) {
+          container.innerHTML = `<span class="pill">No matches for "${query}"</span>`;
+          return;
+        }
+        container.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Chain</th><th>Score</th><th>Source</th><th>Move</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(item => `
+                <tr>
+                  <td>${renderProjectButton(item.canonical_name || '', item.id)}</td>
+                  <td>${item.chain || ''}</td>
+                  <td><span class="pill">${item.current_score ?? 0}</span></td>
+                  <td>${item.launch_source || ''}</td>
+                  <td>${renderTrustMovementBadge(item.source_trust_movement, item.source_trust_movement_direction)}</td>
+                  <td>${item.status || ''}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function renderProjectDetail(data) {
+        const project = data?.project || {};
+        const latestScore = data?.latest_score || {};
+        const explanations = data?.score_explanations || [];
+        const scoreReasons = latestScore?.score_reasons || {};
+        const reasons = explanations.length ? explanations : (scoreReasons.explanations || []);
+        return `
+          <div class="detail-grid">
+            <div class="detail-row"><div class="detail-label">Name</div><div class="detail-value">${project.canonical_name || ''}</div></div>
+            <div class="detail-row"><div class="detail-label">Chain</div><div class="detail-value">${project.chain || ''}</div></div>
+            <div class="detail-row"><div class="detail-label">Score</div><div class="detail-value"><span class="pill">${Number(project.current_score || latestScore.final_score || 0).toFixed(1)}</span></div></div>
+            <div class="detail-row"><div class="detail-label">Status</div><div class="detail-value">${project.status || ''}</div></div>
+            <div class="detail-row"><div class="detail-label">Launch Source</div><div class="detail-value">${project.launch_source || ''}</div></div>
+            <div class="detail-row"><div class="detail-label">Source Trust</div><div class="detail-value">${renderTrustBadge(data.source?.trust_level)} ${renderTrustMovementBadge(data.source_trust_movement?.trust_movement, data.source_trust_movement?.trust_movement_direction)}</div></div>
+            <div class="detail-row"><div class="detail-label">Website</div><div class="detail-value">${project.website_url ? `<a href="${project.website_url}" target="_blank" rel="noreferrer">${project.website_url}</a>` : 'None'}</div></div>
+            <div class="detail-row"><div class="detail-label">Telegram</div><div class="detail-value">${project.telegram_url ? `<a href="${project.telegram_url}" target="_blank" rel="noreferrer">${project.telegram_url}</a>` : 'None'}</div></div>
+            <div class="detail-row"><div class="detail-label">X</div><div class="detail-value">${project.x_url ? `<a href="${project.x_url}" target="_blank" rel="noreferrer">${project.x_url}</a>` : 'None'}</div></div>
+            <div class="detail-row"><div class="detail-label">Discord</div><div class="detail-value">${project.discord_url ? `<a href="${project.discord_url}" target="_blank" rel="noreferrer">${project.discord_url}</a>` : 'None'}</div></div>
+            <div class="detail-row"><div class="detail-label">Latest Score</div><div class="detail-value">${latestScore.model_version ? `${latestScore.model_version} · ` : ''}${latestScore.scored_at || ''}</div></div>
+            <div class="detail-row"><div class="detail-label">Reasons</div><div class="detail-value">${reasons.length ? `<div class="why">${reasons.slice(0, 5).map(reason => `<span>${reason}</span>`).join('')}</div>` : '<span class="pill">No rationale available</span>'}</div></div>
+          </div>
+        `;
+      }
+
+      async function sourceAction(identifier, path) {
+        try {
+          const res = await fetch(path, { method: 'POST' });
+          if (!res.ok) {
+            throw new Error(`Action failed with ${res.status}`);
+          }
+          const payload = await res.json();
+          document.getElementById('status-banner').textContent = `Updated ${payload.account_identifier || identifier}. Refreshing...`;
+          await load();
+        } catch (err) {
+          document.getElementById('status-banner').textContent = `Source update failed: ${err.message}`;
+          document.getElementById('status-banner').classList.add('error');
+        }
+      }
+
+      async function openProject(projectId) {
+        try {
+          const res = await fetch(`/projects/${projectId}/explain`);
+          if (!res.ok) throw new Error(`API returned ${res.status}`);
+          const data = await res.json();
+          const detailEl = document.getElementById('project-detail');
+          if (!data.ok) {
+            detailEl.innerHTML = '<span class="pill">Project not found</span>';
+            return;
+          }
+          detailEl.innerHTML = renderProjectDetail(data);
+        } catch (err) {
+          document.getElementById('project-detail').innerHTML = `<span class="pill">Failed to load project: ${err.message}</span>`;
+        }
+      }
+
+      async function openSource(accountIdentifier) {
+        try {
+          const res = await fetch(`/sources/accounts/${encodeURIComponent(accountIdentifier)}`);
+          if (!res.ok) throw new Error(`API returned ${res.status}`);
+          const data = await res.json();
+          document.getElementById('source-detail').innerHTML = renderSourceDetail(data);
+        } catch (err) {
+          document.getElementById('source-detail').innerHTML = `<span class="pill">Failed to load source: ${err.message}</span>`;
+        }
+      }
+
+      async function saveSourceTrust(accountIdentifier) {
+        try {
+          const input = document.getElementById('source-trust-input');
+          const trustLevel = Number(input.value || 0);
+          const res = await fetch(`/sources/accounts/${accountIdentifier}/trust/${encodeURIComponent(trustLevel)}`, { method: 'POST' });
+          const payload = await res.json();
+          if (!res.ok || payload.ok === false) {
+            throw new Error(payload.reason || `Request failed with ${res.status}`);
+          }
+          document.getElementById('status-banner').textContent = `Updated trust for ${accountIdentifier}.`;
+          await load();
+          await openSource(accountIdentifier);
+        } catch (err) {
+          document.getElementById('status-banner').textContent = `Trust update failed: ${err.message}`;
+          document.getElementById('status-banner').classList.add('error');
+        }
+      }
+
+      async function retryAlert(alertId) {
+        try {
+          const res = await fetch(`/alerts/${alertId}/retry`, { method: 'POST' });
+          const payload = await res.json();
+          if (!res.ok || payload.ok === false) {
+            throw new Error(payload.reason || `Request failed with ${res.status}`);
+          }
+          document.getElementById('status-banner').textContent = `Alert ${alertId} retried successfully.`;
+          document.getElementById('status-banner').classList.remove('error');
+          await load();
+        } catch (err) {
+          document.getElementById('status-banner').textContent = `Retry failed: ${err.message}`;
+          document.getElementById('status-banner').classList.add('error');
+        }
+      }
+
+      async function saveRuntimeConfig() {
+        try {
+          const payload = {
+            daily_alert_limit: Number(document.getElementById('runtime-daily-alert-limit').value || 30),
+            min_score_to_alert: Number(document.getElementById('runtime-min-score-to-alert').value || 75),
+            updated_by: 'dashboard',
+            ranking_weights: {
+              freshness: Number(document.getElementById('weight-freshness').value || 0.2),
+              telegram_presence: Number(document.getElementById('weight-telegram_presence').value || 0.15),
+              social_activity: Number(document.getElementById('weight-social_activity').value || 0.15),
+              website_quality: Number(document.getElementById('weight-website_quality').value || 0.15),
+              growth_rate: Number(document.getElementById('weight-growth_rate').value || 0.15),
+              source_quality: Number(document.getElementById('weight-source_quality').value || 0.1),
+              community_activity: Number(document.getElementById('weight-community_activity').value || 0.1),
+              spam_penalty: Number(document.getElementById('weight-spam_penalty').value || 0.1),
+            },
+          };
+          const res = await fetch('/config/runtime', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const body = await res.json();
+          if (!res.ok || body.ok === false) {
+            throw new Error(body.reason || `Request failed with ${res.status}`);
+          }
+          document.getElementById('status-banner').textContent = 'Runtime config updated.';
+          await load();
+        } catch (err) {
+          document.getElementById('status-banner').textContent = `Config update failed: ${err.message}`;
+          document.getElementById('status-banner').classList.add('error');
+        }
+      }
+
+      let searchTimer = null;
+
+      async function runProjectSearch(query) {
+        const trimmed = query.trim();
+        if (!trimmed) {
+          renderSearchResults([], '');
+          return;
+        }
+        try {
+          const res = await fetch(`/projects/search?q=${encodeURIComponent(trimmed)}&limit=10`);
+          if (!res.ok) throw new Error(`API returned ${res.status}`);
+          const data = await res.json();
+          renderSearchResults(data.items || [], trimmed);
+        } catch (err) {
+          document.getElementById('search-results').innerHTML = `<span class="pill">Search failed: ${err.message}</span>`;
+        }
+      }
+
+      function scheduleProjectSearch(query) {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+          runProjectSearch(query).catch(() => {});
+        }, 250);
+      }
+
+      async function sendTestAlert() {
+        try {
+          const res = await fetch('/alerts/test', { method: 'POST' });
+          const payload = await res.json();
+          if (!res.ok || payload.ok === false) {
+            throw new Error(payload.reason || `Request failed with ${res.status}`);
+          }
+          document.getElementById('status-banner').textContent = 'Test alert sent. Check Telegram.';
+          document.getElementById('status-banner').classList.remove('error');
+        } catch (err) {
+          document.getElementById('status-banner').textContent = `Test alert failed: ${err.message}`;
+          document.getElementById('status-banner').classList.add('error');
+        }
+      }
+
+      async function downloadStateExport() {
+        try {
+          const res = await fetch('/export/state?limit=20');
+          if (!res.ok) throw new Error(`API returned ${res.status}`);
+          const data = await res.json();
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `marshallbot-export-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(url);
+          document.getElementById('status-banner').textContent = 'Export downloaded.';
+        } catch (err) {
+          document.getElementById('status-banner').textContent = `Export failed: ${err.message}`;
+          document.getElementById('status-banner').classList.add('error');
+        }
+      }
+
+      async function load() {
+        try {
+          const res = await fetch('/api/dashboard');
+          if (!res.ok) throw new Error(`API returned ${res.status}`);
+          const data = await res.json();
+          if (data.error) {
+            renderDashboard(demoData, `Demo preview mode: ${data.error}`);
+            document.getElementById('status-banner').classList.add('error');
+            return;
+          }
+          renderDashboard(data, `Live data connected. Last refreshed ${formatTimestamp(new Date())}.`);
+        } catch (err) {
+          renderDashboard(demoData, `Demo preview mode: ${err.message}`);
+          document.getElementById('status-banner').classList.add('error');
+        }
+      }
+      load().catch(err => {
+        document.body.innerHTML = '<pre class="error-pre">' + err + '</pre>';
+      });
+      document.getElementById('project-search').addEventListener('input', event => {
+        scheduleProjectSearch(event.target.value);
+      });
+      setInterval(() => {
+        load().catch(() => {});
+      }, 30000);
+    </script>
+  </body>
+</html>

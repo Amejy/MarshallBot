@@ -1,0 +1,70 @@
+{
+  "launchpads": [
+    {
+      "name": "pump-fun",
+      "chain": "solana",
+      "enabled": true,
+      "mode": "pumpfun",
+      "url": "https://pump.fun/"
+    },
+    {
+      "name": "four-meme",
+      "chain": "bsc",
+      "enabled": true,
+      "mode": "fourmeme",
+      "url": "https://four.meme",
+      "limit": 50
+    },
+    {
+      "name": "crypto-breaking-news",
+      "chain": "solana",
+      "enabled": true,
+      "mode": "rss",
+      "url": "https://www.cryptobreaking.com/feed/"
+    }
+  ],
+  "telegram_channels": [
+    {
+      "name": "sample-announcements",
+      "enabled": true
+    },
+    {
+      "name": "alpha-meme-watch",
+      "enabled": false,
+      "mode": "research",
+      "chain": "solana",
+      "limit": 100,
+      "channels": [
+        "AlphaMemeWatch"
+      ]
+    },
+    {
+      "name": "telegram-research-template",
+      "enabled": false,
+      "mode": "research",
+      "chain": "solana",
+      "limit": 100,
+      "channels": [
+        "YOUR_PUBLIC_CHANNEL_USERNAME"
+      ]
+    }
+  ],
+  "keywords": [
+    "fair launch",
+    "stealth launch",
+    "community takeover",
+    "presale",
+    "meme"
+  ],
+  "blacklisted_domains": [
+    "example-scam.com"
+  ],
+  "blacklisted_telegram": [
+    "https://t.me/example-scam"
+  ],
+  "trusted_sources": [
+    "pump-fun",
+    "four-meme",
+    "sample-telegram"
+  ]
+}
