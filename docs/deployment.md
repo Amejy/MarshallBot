@@ -102,6 +102,14 @@ make release-check
 
 That catches missing Telegram credentials or an empty source setup before you waste time on the live stack.
 
+If you want the simplest possible flow, use:
+
+```bash
+make go-live
+```
+
+That runs the release check first, then starts the tunnel deployment.
+
 ## Notes
 
 - The API will work without Postgres for a limited preview, but the full system needs Postgres and Redis.

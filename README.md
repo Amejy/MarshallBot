@@ -53,6 +53,7 @@ The system is designed to:
    - `make verify-deploy`
    - `make deploy-tunnel`
    - `make release-check`
+   - `make go-live`
    - `make logs-prod`
 5. Stop everything:
    - `make down`
