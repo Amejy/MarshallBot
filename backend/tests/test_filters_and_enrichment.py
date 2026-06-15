@@ -72,14 +72,14 @@ def test_enrich_website_uses_rendered_content(monkeypatch) -> None:
     monkeypatch.setattr(
         "app.services.enrichment.render_website",
         lambda url, screenshot_dir=None, timeout=15000: {
-            "html": "<html><head><title>Alpha Rendered</title></head><body><a href='https://t.me/alpha'>Telegram</a></body></html>",
-            "title": "Alpha Rendered",
+            "html": "<html><head><title>Alpha Mirror</title></head><body><a href='https://t.me/alpha'>Telegram</a></body></html>",
+            "title": "Alpha Mirror",
             "screenshot_path": "/tmp/alpha.png",
         },
     )
 
     enrichment = enrich_website("https://example.com")
 
-    assert enrichment["title"] == "Alpha Rendered"
+    assert enrichment["title"] == "Alpha Mirror"
     assert enrichment["screenshot_path"] == "/tmp/alpha.png"
     assert "https://t.me/alpha" in enrichment["parsed_data"]["telegram_links"]
