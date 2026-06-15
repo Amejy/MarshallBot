@@ -37,26 +37,14 @@ The system is designed to:
    - `social_accounts=[]`
    - `admin_chat_ids=[]`
    - If you want to enable the built-in presets from `.env`, set names like `pump-fun`, `four-meme`, or `alpha-meme-watch` in the corresponding list.
-3. Start the stack:
-   - `make up` starts the backend, worker, beat, Postgres, and Redis without exposing the API on your host
-   - `make up-dev` starts the same stack and exposes the API at `http://localhost:8000`
-   - `make up-tunnel` starts the same stack plus Cloudflare Tunnel for a public URL
-   - `make up-prod` starts the same stack with automatic restarts and exposes the API on `http://localhost:8000`
-4. Check status:
-   - `make ps`
-   - `make ps-tunnel`
-   - `make ps-prod`
-   - `make logs`
-   - `make logs-tunnel`
+3. Run `make go-live` to run the preflight check and start the Cloudflare Tunnel deployment.
+4. If you need the manual helpers, use:
+   - `make release-check`
+   - `make deploy-tunnel`
    - `make tunnel-url`
    - `make tunnel-open`
    - `make verify-deploy`
-   - `make deploy-tunnel`
-   - `make release-check`
-   - `make go-live`
-   - `make logs-prod`
-5. Stop everything:
-   - `make down`
+5. Stop everything with:
    - `make clean-tunnel`
    - `make clean-prod`
 
@@ -80,7 +68,7 @@ The main values you may need are:
 
 ## Deployment
 
-See [docs/deployment.md](docs/deployment.md) for the exact production command sequence and verification steps.
+See [docs/deployment.md](docs/deployment.md) for the exact go-live command and fallback steps.
 
 ## Next milestones
 
