@@ -21,6 +21,14 @@
       "enabled": true,
       "mode": "rss",
       "url": "https://www.cryptobreaking.com/feed/"
+    },
+    {
+      "name": "bnb-chain-news",
+      "chain": "bsc",
+      "enabled": true,
+      "mode": "sitemap",
+      "url": "https://www.bnbchain.org/en",
+      "limit": 25
     }
   ],
   "telegram_channels": [

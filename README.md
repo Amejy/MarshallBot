@@ -36,7 +36,7 @@ The system is designed to:
    - `telegram_channels=[]`
    - `social_accounts=[]`
    - `admin_chat_ids=[]`
-   - The repo already ships with default live presets in `config/sources.json`, including `pump-fun`, `four-meme`, `alpha-meme-watch`, and `bsc-social-watch`.
+   - The repo already ships with default live presets in `config/sources.json`, including `pump-fun`, `four-meme`, `bnb-chain-news`, `alpha-meme-watch`, and `bsc-social-watch`.
 3. Run `make go-live` to run the preflight check and start the Cloudflare Tunnel deployment.
 4. If you need the manual helpers, use:
    - `make release-check`

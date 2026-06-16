@@ -16,6 +16,7 @@ def test_source_config_loads_default_sources_file() -> None:
     config = SourceConfig.load("config/sources.json")
     assert any(item.get("name") == "pump-fun" for item in config.launchpads)
     assert any(item.get("name") == "four-meme" and item.get("mode") == "fourmeme" for item in config.launchpads)
+    assert any(item.get("name") == "bnb-chain-news" and item.get("mode") == "sitemap" for item in config.launchpads)
     assert any(item.get("name") == "alpha-meme-watch" and item.get("mode") == "research" for item in config.telegram_channels)
     assert any(item.get("name") == "bsc-social-watch" and item.get("mode") == "profile" for item in config.social_accounts)
     assert "pump-fun" in config.trusted_sources
