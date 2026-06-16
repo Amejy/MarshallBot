@@ -39,7 +39,7 @@ verify-deploy:
 	python3 backend/scripts/verify_deployment.py $(BASE_URL)
 
 deploy-tunnel:
-	$(COMPOSE_TUNNEL) up --build -d && $(COMPOSE_TUNNEL) logs -f cloudflared | python3 backend/scripts/check_tunnel_deployment.py
+	$(COMPOSE_TUNNEL) down --remove-orphans && $(COMPOSE_TUNNEL) up --build -d && $(COMPOSE_TUNNEL) logs -f cloudflared | python3 backend/scripts/check_tunnel_deployment.py
 
 release-check:
 	python3 backend/scripts/release_check.py
