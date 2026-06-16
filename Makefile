@@ -2,6 +2,7 @@ COMPOSE ?= docker-compose
 COMPOSE_DEV = $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml
 COMPOSE_PROD = $(COMPOSE) -f docker-compose.yml -f docker-compose.prod.yml
 COMPOSE_TUNNEL = $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.tunnel.yml
+PYTHON ?= ./.venv/bin/python
 
 .PHONY: up up-dev down logs ps build rebuild restart clean api tunnel-url tunnel-open verify-deploy deploy-tunnel release-check go-live
 
@@ -30,19 +31,19 @@ logs-tunnel:
 	$(COMPOSE_TUNNEL) logs -f --tail=100
 
 tunnel-url:
-	$(COMPOSE_TUNNEL) logs -f cloudflared | python3 backend/scripts/print_tunnel_url.py
+	$(COMPOSE_TUNNEL) logs -f cloudflared | $(PYTHON) backend/scripts/print_tunnel_url.py
 
 tunnel-open:
-	$(COMPOSE_TUNNEL) logs -f cloudflared | python3 backend/scripts/open_tunnel_dashboard.py
+	$(COMPOSE_TUNNEL) logs -f cloudflared | $(PYTHON) backend/scripts/open_tunnel_dashboard.py
 
 verify-deploy:
-	python3 backend/scripts/verify_deployment.py $(BASE_URL)
+	$(PYTHON) backend/scripts/verify_deployment.py $(BASE_URL)
 
 deploy-tunnel:
-	$(COMPOSE_TUNNEL) down --remove-orphans && $(COMPOSE_TUNNEL) up --build -d && $(COMPOSE_TUNNEL) logs -f cloudflared | python3 backend/scripts/check_tunnel_deployment.py
+	$(COMPOSE_TUNNEL) down --remove-orphans && $(COMPOSE_TUNNEL) up --build -d && $(COMPOSE_TUNNEL) logs -f cloudflared | $(PYTHON) backend/scripts/check_tunnel_deployment.py
 
 release-check:
-	python3 backend/scripts/release_check.py
+	$(PYTHON) backend/scripts/release_check.py
 
 go-live:
 	$(MAKE) release-check && $(MAKE) deploy-tunnel

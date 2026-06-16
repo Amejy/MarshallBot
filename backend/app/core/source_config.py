@@ -135,6 +135,22 @@ class SourceConfig:
                 "limit": 25,
                 "url": "https://example.com/bsc-feed.xml",
             },
+            "dexscreener-solana-watch": {
+                "name": "dexscreener-solana-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "solana",
+                "limit": 25,
+                "url": "https://dexscreener.com/solana",
+            },
+            "dexscreener-bsc-watch": {
+                "name": "dexscreener-bsc-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "bsc",
+                "limit": 25,
+                "url": "https://dexscreener.com/bsc",
+            },
         }
 
         launchpads = list(data.get("launchpads", []))
@@ -172,6 +188,8 @@ def build_source_selection_summary(config: SourceConfig | None = None) -> dict[s
         "social_accounts": SourceConfig._selection_summary(list(settings.social_accounts), config.social_accounts, {
             "alpha-x-watch": {"name": "alpha-x-watch"},
             "bsc-social-feed": {"name": "bsc-social-feed"},
+            "dexscreener-solana-watch": {"name": "dexscreener-solana-watch"},
+            "dexscreener-bsc-watch": {"name": "dexscreener-bsc-watch"},
         }),
         "keywords": list(config.keywords),
         "blacklisted_domains": list(config.blacklisted_domains),

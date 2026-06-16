@@ -1,15 +1,30 @@
 from pathlib import Path
 
 from app.core.config import settings
+from app.core.config import Settings
 from app.core.source_config import SourceConfig, build_source_coverage_summary, build_source_selection_summary
 
 
 def test_source_config_loads_missing_file(tmp_path: Path) -> None:
+    from app.core.config import settings
+
+    settings.launchpad_sources = []
+    settings.telegram_channels = []
+    settings.social_accounts = []
     config = SourceConfig.load(tmp_path / "missing.json")
     assert config.launchpads == []
     assert config.telegram_channels == []
     assert config.social_accounts == []
     assert config.keywords == []
+
+
+def test_settings_parses_csv_and_json_lists(monkeypatch) -> None:
+    monkeypatch.setenv("telegram_channels", "alpha-meme-watch, dexscreener-solana-watch")
+    monkeypatch.setenv("social_accounts", '["bsc-social-watch", "dexscreener-bsc-watch"]')
+    parsed = Settings(_env_file=None)
+
+    assert parsed.telegram_channels == ["alpha-meme-watch", "dexscreener-solana-watch"]
+    assert parsed.social_accounts == ["bsc-social-watch", "dexscreener-bsc-watch"]
 
 
 def test_source_config_loads_default_sources_file() -> None:
@@ -19,6 +34,8 @@ def test_source_config_loads_default_sources_file() -> None:
     assert any(item.get("name") == "bnb-chain-news" and item.get("mode") == "sitemap" for item in config.launchpads)
     assert any(item.get("name") == "alpha-meme-watch" and item.get("mode") == "research" for item in config.telegram_channels)
     assert any(item.get("name") == "bsc-social-watch" and item.get("mode") == "profile" for item in config.social_accounts)
+    assert any(item.get("name") == "dexscreener-solana-watch" and item.get("mode") == "profile" for item in config.social_accounts)
+    assert any(item.get("name") == "dexscreener-bsc-watch" and item.get("mode") == "profile" for item in config.social_accounts)
     assert "pump-fun" in config.trusted_sources
 
 

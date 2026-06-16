@@ -193,4 +193,30 @@ def list_source_templates() -> list[dict]:
                 "url": "https://example.com/profile",
             },
         },
+        {
+            "mode": "profile",
+            "label": "Dexscreener Solana watch",
+            "description": "Track Dexscreener Solana pages as a discovery source for fresh communities and project links.",
+            "example": {
+                "name": "dexscreener-solana-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "solana",
+                "limit": 25,
+                "url": "https://dexscreener.com/solana",
+            },
+        },
+        {
+            "mode": "profile",
+            "label": "Dexscreener BSC watch",
+            "description": "Track Dexscreener BSC pages as a discovery source for fresh communities and project links.",
+            "example": {
+                "name": "dexscreener-bsc-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "bsc",
+                "limit": 25,
+                "url": "https://dexscreener.com/bsc",
+            },
+        },
     ]

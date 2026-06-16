@@ -1,5 +1,65 @@
+from __future__ import annotations
+
+import json
+from typing import get_origin
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings.sources.providers.dotenv import DotEnvSettingsSource
+from pydantic_settings.sources.providers.env import EnvSettingsSource
+
+
+def _parse_list(value: object) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    if isinstance(value, (tuple, set)):
+        return [str(item).strip() for item in value if str(item).strip()]
+    if isinstance(value, str):
+        raw = value.strip()
+        if not raw:
+            return []
+        if raw.startswith("[") and raw.endswith("]"):
+            try:
+                parsed = json.loads(raw)
+            except json.JSONDecodeError:
+                parsed = None
+            if isinstance(parsed, list):
+                return [str(item).strip() for item in parsed if str(item).strip()]
+        return [item.strip().strip('"').strip("'") for item in raw.split(",") if item.strip().strip('"').strip("'")]
+    return [str(value).strip()]
+
+
+def _is_list_field(field: object) -> bool:
+    annotation = getattr(field, "annotation", None)
+    origin = get_origin(annotation)
+    return origin in {list, tuple, set}
+
+
+class _CSVFriendlySettingsSourceMixin:
+    def prepare_field_value(self, field_name, field, value, value_is_complex):  # type: ignore[override]
+        if _is_list_field(field) and isinstance(value, str):
+            raw = value.strip()
+            if not raw:
+                return []
+            if raw.startswith("[") and raw.endswith("]"):
+                try:
+                    parsed = json.loads(raw)
+                except json.JSONDecodeError:
+                    parsed = None
+                if isinstance(parsed, list):
+                    return [str(item).strip() for item in parsed if str(item).strip()]
+            return _parse_list(raw)
+        return super().prepare_field_value(field_name, field, value, value_is_complex)
+
+
+class CSVFriendlyEnvSettingsSource(_CSVFriendlySettingsSourceMixin, EnvSettingsSource):
+    pass
+
+
+class CSVFriendlyDotEnvSettingsSource(_CSVFriendlySettingsSourceMixin, DotEnvSettingsSource):
+    pass
 
 
 class Settings(BaseSettings):
@@ -31,6 +91,15 @@ class Settings(BaseSettings):
             "spam_penalty": 0.10,
         }
     )
+
+    @classmethod
+    def settings_customise_sources(cls, settings_cls, init_settings, env_settings, dotenv_settings, file_secret_settings):
+        return (
+            init_settings,
+            CSVFriendlyEnvSettingsSource(settings_cls),
+            CSVFriendlyDotEnvSettingsSource(settings_cls),
+            file_secret_settings,
+        )
 
 
 settings = Settings()

@@ -65,6 +65,22 @@
       "chain": "bsc",
       "limit": 25,
       "url": "https://x.com/pancakeswap"
+    },
+    {
+      "name": "dexscreener-solana-watch",
+      "enabled": true,
+      "mode": "profile",
+      "chain": "solana",
+      "limit": 25,
+      "url": "https://dexscreener.com/solana"
+    },
+    {
+      "name": "dexscreener-bsc-watch",
+      "enabled": true,
+      "mode": "profile",
+      "chain": "bsc",
+      "limit": 25,
+      "url": "https://dexscreener.com/bsc"
     }
   ],
   "keywords": [

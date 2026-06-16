@@ -36,7 +36,7 @@ The system is designed to:
    - `telegram_channels=[]`
    - `social_accounts=[]`
    - `admin_chat_ids=[]`
-   - The repo already ships with default live presets in `config/sources.json`, including `pump-fun`, `four-meme`, `bnb-chain-news`, `alpha-meme-watch`, and `bsc-social-watch`.
+   - The repo already ships with default live presets in `config/sources.json`, including `pump-fun`, `four-meme`, `bnb-chain-news`, `alpha-meme-watch`, `bsc-social-watch`, and Dexscreener watches for Solana and BSC.
 3. Run `make go-live` to run the preflight check and start the Cloudflare Tunnel deployment.
 4. If you need the manual helpers, use:
    - `make release-check`
@@ -60,6 +60,7 @@ The main values you may need are:
 - `telegram_session_string` - saved Telethon session string after login
 - `daily_alert_limit` - max alerts sent per day
 - `min_score_to_alert` - minimum score required before an opportunity is alerted
+- List fields like `launchpad_sources`, `telegram_channels`, `social_accounts`, and `admin_chat_ids` accept either JSON arrays or simple comma-separated values in `.env`
 
 ## Local Notes
 

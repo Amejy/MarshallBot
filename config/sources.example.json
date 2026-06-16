@@ -49,6 +49,24 @@
       ]
     }
   ],
+  "social_accounts": [
+    {
+      "name": "dexscreener-solana-watch",
+      "enabled": false,
+      "mode": "profile",
+      "chain": "solana",
+      "limit": 25,
+      "url": "https://dexscreener.com/solana"
+    },
+    {
+      "name": "dexscreener-bsc-watch",
+      "enabled": false,
+      "mode": "profile",
+      "chain": "bsc",
+      "limit": 25,
+      "url": "https://dexscreener.com/bsc"
+    }
+  ],
   "keywords": [
     "fair launch",
     "stealth launch",
