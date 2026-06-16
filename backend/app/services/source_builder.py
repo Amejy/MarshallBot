@@ -4,7 +4,7 @@ from app.core.source_config import SourceConfig
 from app.services.connectors import AtomFeedSource, HTMLListingSource, JSONFeedSource, PublicProfileSource, RSSFeedSource, SitemapSource
 from app.services.launchpad_sources import FourMemeSource
 from app.services.pumpfun import PumpFunSource
-from app.services.telegram_research import TelegramResearchSource
+from app.services.telegram_research import TelegramPublicChannelSource, TelegramResearchSource
 from app.services.source_adapters import LaunchpadSource, TelegramAnnouncementSource
 from app.services.sources import CompositeDiscoverySource, StaticDiscoverySource
 
@@ -108,6 +108,14 @@ def build_source_registry(config: SourceConfig) -> dict[str, object]:
                 [str(item) for item in research_channels if str(item).strip()],
                 chain=channel.get("chain", "solana"),
                 limit=int(channel.get("limit", 100)),
+            )
+        elif mode in {"public", "web"}:
+            public_channel = channel.get("channel") or (channel.get("channels") or channel.get("usernames") or [name])[0]
+            registry[name] = TelegramPublicChannelSource(
+                name,
+                str(public_channel),
+                chain=channel.get("chain", "solana"),
+                limit=int(channel.get("limit", 20)),
             )
         else:
             registry[name] = TelegramAnnouncementSource(

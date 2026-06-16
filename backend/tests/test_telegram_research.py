@@ -1,6 +1,6 @@
 from app.core.source_config import SourceConfig
 from app.services.source_builder import build_source_registry
-from app.services.telegram_research import _extract_website_links, _infer_project_name, build_telegram_onboarding, normalize_public_channel_name
+from app.services.telegram_research import _extract_website_links, _infer_project_name, build_telegram_onboarding, normalize_public_channel_name, normalize_public_channel_url
 
 
 def test_infer_project_name_uses_first_line() -> None:
@@ -17,6 +17,12 @@ def test_normalize_public_channel_name_accepts_handles() -> None:
     assert normalize_public_channel_name("@AlphaMemeWatch") == "AlphaMemeWatch"
     assert normalize_public_channel_name("AlphaMemeWatch") == "AlphaMemeWatch"
     assert normalize_public_channel_name("bad handle!") is None
+
+
+def test_normalize_public_channel_url_accepts_tme_links() -> None:
+    assert normalize_public_channel_url("https://t.me/AlphaMemeWatch") == "AlphaMemeWatch"
+    assert normalize_public_channel_url("https://t.me/s/AlphaMemeWatch") == "AlphaMemeWatch"
+    assert normalize_public_channel_url("not a channel") is None
 
 
 def test_build_telegram_onboarding_returns_example_config() -> None:
@@ -44,6 +50,25 @@ def test_build_source_registry_uses_telegram_research_mode() -> None:
     registry = build_source_registry(config)
     assert "alpha-research" in registry
     assert registry["alpha-research"].__class__.__name__ == "TelegramResearchSource"
+
+
+def test_build_source_registry_uses_public_telegram_mode() -> None:
+    config = SourceConfig(
+        telegram_channels=[
+            {
+                "name": "alpha-public",
+                "enabled": True,
+                "mode": "public",
+                "channel": "AlphaMemeWatch",
+                "chain": "solana",
+                "limit": 20,
+            }
+        ]
+    )
+
+    registry = build_source_registry(config)
+    assert "alpha-public" in registry
+    assert registry["alpha-public"].__class__.__name__ == "TelegramPublicChannelSource"
 
 
 def test_build_source_registry_uses_fourmeme_mode() -> None:
@@ -137,3 +162,32 @@ def test_build_source_registry_uses_social_profile_mode(monkeypatch) -> None:
     items = registry["alpha-x-watch"].collect()
     assert items[0]["source_type"] == "social"
     assert items[0]["telegram_url"] == "https://t.me/alpha"
+
+
+def test_public_telegram_channel_source_collects_quality_items(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.services.telegram_research.fetch_text",
+        lambda url, timeout=20: """
+        <html>
+          <body>
+            <div class="tgme_widget_message_text js-message_text" dir="auto">
+              Alpha launch https://alpha.io <a href="https://t.me/alpha">Telegram</a>
+            </div>
+            <div class="tgme_widget_message_text js-message_text" dir="auto">
+              Missing website <a href="https://t.me/nope">Telegram</a>
+            </div>
+          </body>
+        </html>
+        """,
+    )
+
+    from app.services.telegram_research import TelegramPublicChannelSource
+
+    source = TelegramPublicChannelSource("alpha-public", "AlphaMemeWatch", chain="solana", limit=10)
+    items = source.collect()
+
+    assert len(items) == 1
+    assert items[0]["canonical_name"] == "Alpha launch"
+    assert items[0]["website_url"] == "https://alpha.io"
+    assert items[0]["telegram_url"] == "https://t.me/alpha"
+    assert items[0]["source_type"] == "telegram"
