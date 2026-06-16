@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import app.main as main
 
 
@@ -218,9 +220,15 @@ def test_source_coverage_endpoint_reports_ready(monkeypatch) -> None:
     )
 
     body = main.source_coverage_view()
-
     assert body["ready"] is True
     assert body["active_sources"] == 2
+
+
+def test_dashboard_page_points_at_packaged_file() -> None:
+    response = main.dashboard_page()
+
+    assert Path(main.DASHBOARD_FILE).exists()
+    assert Path(response.path) == Path(main.DASHBOARD_FILE)
 
 
 def test_recent_social_profiles_endpoint_uses_repository(monkeypatch) -> None:

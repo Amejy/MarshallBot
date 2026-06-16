@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 
@@ -26,6 +28,7 @@ configure_logging()
 app = FastAPI(title="MarshallBot API", version="0.1.0")
 source_config = SourceConfig.load()
 registry = build_default_registry(source_config)
+DASHBOARD_FILE = Path(__file__).resolve().parent / "static" / "dashboard.html"
 
 
 def _summarize_trust_movement(history: list[dict]) -> dict[str, object]:
@@ -93,7 +96,7 @@ def root() -> dict[str, str]:
 
 @app.get("/dashboard")
 def dashboard_page() -> FileResponse:
-    return FileResponse("backend/app/static/dashboard.html")
+    return FileResponse(DASHBOARD_FILE)
 
 
 @app.get("/config")
