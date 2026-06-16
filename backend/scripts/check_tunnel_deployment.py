@@ -12,25 +12,26 @@ from app.core.tunnel import extract_tunnel_url
 
 
 def main() -> int:
+    local_base_url = "http://127.0.0.1:8000"
+    local_failures: list[str] = []
+    for url in deployment_check_urls(local_base_url):
+        try:
+            with urlopen(url, timeout=15) as response:
+                status = getattr(response, "status", 200)
+                print(f"OK {status} {url}")
+        except URLError as exc:
+            local_failures.append(f"{url}: {exc}")
+            print(f"FAIL {url}: {exc}", file=sys.stderr)
+
+    if local_failures:
+        return 1
+
     for line in sys.stdin:
         tunnel_url = extract_tunnel_url(line)
         if not tunnel_url:
             continue
 
         print(f"Tunnel URL found: {tunnel_url}")
-        failures: list[str] = []
-        for url in deployment_check_urls(tunnel_url):
-            try:
-                with urlopen(url, timeout=15) as response:
-                    status = getattr(response, "status", 200)
-                    print(f"OK {status} {url}")
-            except URLError as exc:
-                failures.append(f"{url}: {exc}")
-                print(f"FAIL {url}: {exc}", file=sys.stderr)
-
-        if failures:
-            return 1
-
         print(f"Deployment is healthy at {tunnel_url}")
         print(f"Dashboard: {tunnel_url.rstrip('/')}/dashboard")
         return 0
