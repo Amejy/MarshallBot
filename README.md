@@ -36,7 +36,7 @@ The system is designed to:
    - `telegram_channels=[]`
    - `social_accounts=[]`
    - `admin_chat_ids=[]`
-   - If you want to enable the built-in presets from `.env`, set names like `pump-fun`, `four-meme`, or `alpha-meme-watch` in the corresponding list.
+   - The repo already ships with default live presets in `config/sources.json`, including `pump-fun`, `four-meme`, `alpha-meme-watch`, and `bsc-social-watch`.
 3. Run `make go-live` to run the preflight check and start the Cloudflare Tunnel deployment.
 4. If you need the manual helpers, use:
    - `make release-check`

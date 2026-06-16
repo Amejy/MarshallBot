@@ -49,7 +49,16 @@
       ]
     }
   ],
-  "social_accounts": [],
+  "social_accounts": [
+    {
+      "name": "bsc-social-watch",
+      "enabled": true,
+      "mode": "profile",
+      "chain": "bsc",
+      "limit": 25,
+      "url": "https://x.com/pancakeswap"
+    }
+  ],
   "keywords": [
     "fair launch",
     "stealth launch",
