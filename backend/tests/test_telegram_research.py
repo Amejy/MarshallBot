@@ -164,6 +164,63 @@ def test_build_source_registry_uses_social_profile_mode(monkeypatch) -> None:
     assert items[0]["telegram_url"] == "https://t.me/alpha"
 
 
+def test_build_source_registry_uses_dexscreener_watch_mode(monkeypatch) -> None:
+    def fake_fetch_text(url, timeout=20):
+        if url == "https://dexscreener.com/solana":
+            return """
+            <html>
+              <body>
+                <a href="/solana/alpha123456">Alpha</a>
+                <a href="/solana/beta123456">Beta</a>
+              </body>
+            </html>
+            """
+        if url.endswith("/solana/alpha123456"):
+            return """
+            <html>
+              <head><title>Alpha Wolf | DexScreener</title></head>
+              <body>
+                <a href="https://alpha.wtf">Website</a>
+                <a href="https://t.me/alpha">Telegram</a>
+              </body>
+            </html>
+            """
+        if url.endswith("/solana/beta123456"):
+            return """
+            <html>
+              <head><title>Beta Moon | DexScreener</title></head>
+              <body>
+                <a href="https://beta.wtf">Website</a>
+                <a href="https://t.me/beta">Telegram</a>
+              </body>
+            </html>
+            """
+        raise AssertionError(f"unexpected url {url}")
+
+    monkeypatch.setattr("app.services.dexscreener.fetch_text", fake_fetch_text)
+
+    config = SourceConfig(
+        social_accounts=[
+            {
+                "name": "dexscreener-solana-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "solana",
+                "url": "https://dexscreener.com/solana",
+                "limit": 2,
+            }
+        ]
+    )
+
+    registry = build_source_registry(config)
+    assert "dexscreener-solana-watch" in registry
+    items = registry["dexscreener-solana-watch"].collect()
+    assert len(items) == 2
+    assert items[0]["canonical_name"] == "Alpha Wolf"
+    assert items[0]["website_url"] == "https://alpha.wtf"
+    assert items[0]["telegram_url"] == "https://t.me/alpha"
+
+
 def test_public_telegram_channel_source_collects_quality_items(monkeypatch) -> None:
     monkeypatch.setattr(
         "app.services.telegram_research.fetch_text",

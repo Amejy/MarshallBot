@@ -222,7 +222,7 @@ def list_source_templates() -> list[dict]:
         {
             "mode": "profile",
             "label": "Dexscreener Solana watch",
-            "description": "Track Dexscreener Solana pages as a discovery source for fresh communities and project links.",
+            "description": "Crawl Dexscreener Solana pair pages as an early discovery source for fresh communities and project links.",
             "example": {
                 "name": "dexscreener-solana-watch",
                 "enabled": True,
@@ -235,7 +235,7 @@ def list_source_templates() -> list[dict]:
         {
             "mode": "profile",
             "label": "Dexscreener BSC watch",
-            "description": "Track Dexscreener BSC pages as a discovery source for fresh communities and project links.",
+            "description": "Crawl Dexscreener BSC pair pages as an early discovery source for fresh communities and project links.",
             "example": {
                 "name": "dexscreener-bsc-watch",
                 "enabled": True,

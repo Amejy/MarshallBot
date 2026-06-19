@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.core.source_config import SourceConfig
+from app.services.dexscreener import DexScreenerSource
 from app.services.connectors import AtomFeedSource, HTMLListingSource, JSONFeedSource, PublicProfileSource, RSSFeedSource, SitemapSource
 from app.services.launchpad_sources import FourMemeSource
 from app.services.pumpfun import PumpFunSource
@@ -142,6 +143,9 @@ def build_source_registry(config: SourceConfig) -> dict[str, object]:
         url = str(account.get("url", "")).strip()
         limit = int(account.get("limit", 25))
         items = account.get("items") or account.get("posts") or []
+        if name.lower().startswith("dexscreener-") and "dexscreener.com" in url.lower():
+            registry[name] = DexScreenerSource(name, url, chain=chain if chain in {"solana", "bsc"} else "solana", limit=limit)
+            continue
         if items:
             registry[name] = _TaggedSource(
                 LaunchpadSource(name, list(items), chain=chain),
