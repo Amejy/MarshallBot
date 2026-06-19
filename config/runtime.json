@@ -1,6 +1,6 @@
 {
   "daily_alert_limit": 30,
-  "min_score_to_alert": 80,
+  "min_score_to_alert": 72,
   "ranking_weights": {
     "freshness": 0.14,
     "telegram_presence": 0.16,
