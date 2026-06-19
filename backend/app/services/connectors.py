@@ -24,6 +24,10 @@ def fetch_text(url: str, timeout: int = 20) -> str:
         return response.read().decode(charset, errors="replace")
 
 
+def fetch_json(url: str, timeout: int = 20):
+    return json.loads(fetch_text(url, timeout=timeout))
+
+
 URL_RE = re.compile(r"https?://[^\s\"'<>]+", re.IGNORECASE)
 SITEMAP_DIRECTIVE_RE = re.compile(r"^\s*Sitemap:\s*(\S+)\s*$", re.IGNORECASE | re.MULTILINE)
 

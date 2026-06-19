@@ -165,39 +165,65 @@ def test_build_source_registry_uses_social_profile_mode(monkeypatch) -> None:
 
 
 def test_build_source_registry_uses_dexscreener_watch_mode(monkeypatch) -> None:
-    def fake_fetch_text(url, timeout=20):
-        if url == "https://dexscreener.com/solana":
-            return """
-            <html>
-              <body>
-                <a href="/solana/alpha123456">Alpha</a>
-                <a href="/solana/beta123456">Beta</a>
-              </body>
-            </html>
-            """
-        if url.endswith("/solana/alpha123456"):
-            return """
-            <html>
-              <head><title>Alpha Wolf | DexScreener</title></head>
-              <body>
-                <a href="https://alpha.wtf">Website</a>
-                <a href="https://t.me/alpha">Telegram</a>
-              </body>
-            </html>
-            """
-        if url.endswith("/solana/beta123456"):
-            return """
-            <html>
-              <head><title>Beta Moon | DexScreener</title></head>
-              <body>
-                <a href="https://beta.wtf">Website</a>
-                <a href="https://t.me/beta">Telegram</a>
-              </body>
-            </html>
-            """
+    def fake_fetch_json(url, timeout=20):
+        if url.endswith("/token-profiles/latest/v1"):
+            return [
+                {
+                    "chainId": "solana",
+                    "tokenAddress": "alpha123456",
+                    "url": "https://dexscreener.com/solana/alpha123456",
+                    "description": "Alpha Wolf",
+                    "links": [
+                        {"type": "website", "url": "https://alpha.wtf"},
+                        {"type": "telegram", "url": "https://t.me/alpha"},
+                    ],
+                },
+                {
+                    "chainId": "solana",
+                    "tokenAddress": "beta123456",
+                    "url": "https://dexscreener.com/solana/beta123456",
+                    "description": "Beta Moon",
+                    "links": [
+                        {"type": "website", "url": "https://beta.wtf"},
+                        {"type": "telegram", "url": "https://t.me/beta"},
+                    ],
+                },
+            ]
+        if url.endswith("/token-boosts/latest/v1"):
+            return []
+        if url.endswith("/token-pairs/v1/solana/alpha123456"):
+            return [
+                {
+                    "pairAddress": "pair-alpha",
+                    "url": "https://dexscreener.com/solana/pair-alpha",
+                    "baseToken": {"name": "Alpha Wolf", "symbol": "ALPHA"},
+                    "quoteToken": {"name": "Solana", "symbol": "SOL"},
+                    "liquidity": {"usd": 12345},
+                    "volume": {"h24": 6789},
+                    "fdv": 555000,
+                    "marketCap": 444000,
+                    "priceUsd": 0.01,
+                    "pairCreatedAt": 1710000000000,
+                }
+            ]
+        if url.endswith("/token-pairs/v1/solana/beta123456"):
+            return [
+                {
+                    "pairAddress": "pair-beta",
+                    "url": "https://dexscreener.com/solana/pair-beta",
+                    "baseToken": {"name": "Beta Moon", "symbol": "BETA"},
+                    "quoteToken": {"name": "Solana", "symbol": "SOL"},
+                    "liquidity": {"usd": 9876},
+                    "volume": {"h24": 5432},
+                    "fdv": 222000,
+                    "marketCap": 111000,
+                    "priceUsd": 0.02,
+                    "pairCreatedAt": 1710001000000,
+                }
+            ]
         raise AssertionError(f"unexpected url {url}")
 
-    monkeypatch.setattr("app.services.dexscreener.fetch_text", fake_fetch_text)
+    monkeypatch.setattr("app.services.dexscreener.fetch_json", fake_fetch_json)
 
     config = SourceConfig(
         social_accounts=[

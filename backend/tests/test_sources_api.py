@@ -359,6 +359,56 @@ def test_test_alert_endpoint_reports_when_no_real_projects_exist(monkeypatch) ->
     assert response["reason"] == "no_real_projects_found"
 
 
+def test_test_alert_endpoint_can_fallback_to_provisional_scoring(monkeypatch) -> None:
+    sent: list[tuple[str, str]] = []
+
+    class FakeTelegramBotClient:
+        def __init__(self, token: str | None = None) -> None:
+            self.token = token
+
+        async def send_message(self, chat_id: str, text: str) -> dict:
+            sent.append((chat_id, text))
+            return {"ok": True, "result": {"message_id": 456}}
+
+    monkeypatch.setattr(main, "TelegramBotClient", FakeTelegramBotClient)
+    monkeypatch.setattr(main.settings, "telegram_bot_token", "token")
+    monkeypatch.setattr(main.settings, "telegram_chat_id", "123456")
+    monkeypatch.setattr(
+        main,
+        "list_top_today_projects",
+        lambda limit=1: [
+            {
+                "id": 99,
+                "canonical_name": "Fallback Token",
+                "chain": "solana",
+                "website_url": "https://fallback.example",
+                "telegram_url": "https://t.me/fallback",
+                "launch_source": "dexscreener-solana-watch",
+                "current_score": None,
+                "best_score": None,
+            }
+        ],
+    )
+    monkeypatch.setattr(main, "get_latest_project_score", lambda project_id: None)
+    monkeypatch.setattr(main, "build_default_signals", lambda event, project=None, source_config=None, default_signals=None: {"source_trust_level": 0})
+    monkeypatch.setattr(
+        main,
+        "evaluate_project",
+        lambda project, signals: {
+            "score": 77.7,
+            "score_explanations": ["Computed from live project data"],
+            "score_reasons": {"explanations": ["Computed from live project data"]},
+        },
+    )
+
+    response = main.send_test_alert()
+
+    assert response["ok"] is True
+    assert sent
+    assert "Fallback Token" in sent[0][1]
+    assert "Computed from live project data" in sent[0][1]
+
+
 def test_retry_alert_endpoint_delegates(monkeypatch) -> None:
     monkeypatch.setattr(
         main.task_helpers,

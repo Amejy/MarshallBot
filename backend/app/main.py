@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.core.source_config import SourceConfig, build_source_coverage_summary, build_source_selection_summary
 from app.core.logging import configure_logging
 from app.services.ranking import RankingConfig
+from app.services.pipeline import build_default_signals, evaluate_project
 from app.services.orchestration import process_source
 from app.services.registry import build_default_registry
 from app.services.telegram_research import TelegramResearchConfig, build_telegram_onboarding
@@ -87,19 +88,46 @@ def _latest_real_alert_project() -> tuple[dict[str, object] | None, float | None
         ("ranking_dashboard", list_ranking_dashboard),
         ("top_projects", list_top_projects),
     )
-    for source_name, loader in project_sources:
-        projects = loader(limit=1)
-        if not projects:
-            continue
-        project = dict(projects[0])
-        score = project.get("current_score")
+    best_candidate: tuple[dict[str, object], float, str] | None = None
+
+    def _score_candidate(project: dict[str, object]) -> tuple[dict[str, object], float | None]:
+        candidate = dict(project)
+        score = candidate.get("current_score")
         if score is None:
-            score = project.get("best_score")
+            score = candidate.get("best_score")
+        if score is None and candidate.get("id"):
+            latest_score = get_latest_project_score(int(candidate["id"]))
+            if latest_score and latest_score.get("final_score") is not None:
+                score = latest_score.get("final_score")
+                candidate["score_explanations"] = latest_score.get("score_reasons", {}).get("explanations", [])
+                candidate["score_reasons"] = latest_score.get("score_reasons", {})
+        if score is None:
+            signals = build_default_signals(candidate, project=candidate, source_config=source_config)
+            evaluated = evaluate_project(candidate, signals)
+            score = evaluated.get("score")
+            candidate["score_explanations"] = evaluated.get("score_explanations", [])
+            candidate["score_reasons"] = evaluated.get("score_reasons", {})
         try:
             score_value = float(score) if score is not None else None
         except (TypeError, ValueError):
             score_value = None
-        return project, score_value, source_name
+        return candidate, score_value
+
+    for source_name, loader in project_sources:
+        try:
+            projects = loader(limit=10)
+        except Exception:
+            continue
+        if not projects:
+            continue
+        for raw_project in projects:
+            project, score_value = _score_candidate(dict(raw_project))
+            if score_value is None:
+                continue
+            if best_candidate is None or score_value > best_candidate[1]:
+                best_candidate = (project, score_value, source_name)
+    if best_candidate is not None:
+        return best_candidate
     return None, None, None
 
 
