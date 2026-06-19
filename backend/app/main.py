@@ -81,6 +81,28 @@ def _safe_payload(loader, fallback: dict[str, object]) -> dict[str, object]:
         return {**fallback, "error": str(exc)}
 
 
+def _latest_real_alert_project() -> tuple[dict[str, object] | None, float | None, str | None]:
+    project_sources = (
+        ("top_today", list_top_today_projects),
+        ("ranking_dashboard", list_ranking_dashboard),
+        ("top_projects", list_top_projects),
+    )
+    for source_name, loader in project_sources:
+        projects = loader(limit=1)
+        if not projects:
+            continue
+        project = dict(projects[0])
+        score = project.get("current_score")
+        if score is None:
+            score = project.get("best_score")
+        try:
+            score_value = float(score) if score is not None else None
+        except (TypeError, ValueError):
+            score_value = None
+        return project, score_value, source_name
+    return None, None, None
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -175,24 +197,41 @@ def send_test_alert() -> dict[str, object]:
     if not settings.telegram_bot_token or not settings.telegram_chat_id:
         return {"ok": False, "reason": "telegram_not_configured"}
 
-    payload = {
-        "canonical_name": "MarshallBot Test Alert",
-        "chain": "solana",
-        "website_url": "https://example.com",
-        "telegram_url": "https://t.me/example",
-        "launch_source": "manual-test",
-        "first_seen_at": None,
-        "score_explanations": [
-            "Telegram delivery is configured",
-            "Dashboard trigger works",
-            "Ready for live alerts",
-        ],
-    }
-    message = build_alert_message(payload, 99.0)
+    project, score, source_name = _latest_real_alert_project()
+    if not project or score is None:
+        return {
+            "ok": False,
+            "reason": "no_real_projects_found",
+            "detail": "No scored projects are available yet. Let discovery run or backfill a source, then retry.",
+        }
+
+    project["score_explanations"] = (
+        project.get("score_explanations")
+        or project.get("score_reasons", {}).get("explanations", [])
+        or [
+            "Latest real project from the database",
+            f"Selected from {source_name}",
+        ]
+    )
+    message = build_alert_message(project, score)
     import asyncio
 
     result = asyncio.run(TelegramBotClient().send_message(settings.telegram_chat_id, message))
-    return {"ok": True, "result": result}
+    return {
+        "ok": True,
+        "result": result,
+        "project": {
+            "id": project.get("id"),
+            "canonical_name": project.get("canonical_name"),
+            "chain": project.get("chain"),
+            "website_url": project.get("website_url"),
+            "telegram_url": project.get("telegram_url"),
+            "launch_source": project.get("launch_source"),
+            "current_score": project.get("current_score"),
+            "best_score": project.get("best_score"),
+            "selected_from": source_name,
+        },
+    }
 
 
 @app.post("/alerts/{alert_id}/retry")

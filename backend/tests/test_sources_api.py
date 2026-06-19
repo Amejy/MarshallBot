@@ -318,13 +318,45 @@ def test_test_alert_endpoint_sends_message(monkeypatch) -> None:
     monkeypatch.setattr(main, "TelegramBotClient", FakeTelegramBotClient)
     monkeypatch.setattr(main.settings, "telegram_bot_token", "token")
     monkeypatch.setattr(main.settings, "telegram_chat_id", "123456")
+    monkeypatch.setattr(
+        main,
+        "list_top_today_projects",
+        lambda limit=1: [
+            {
+                "id": 42,
+                "canonical_name": "Alpha Wolf",
+                "chain": "solana",
+                "website_url": "https://alphawolf.example",
+                "telegram_url": "https://t.me/alphawolf",
+                "launch_source": "pump.fun",
+                "current_score": 91.2,
+                "best_score": 94.1,
+                "score_reasons": {"explanations": ["Telegram link present", "Website quality strong"]},
+            }
+        ],
+    )
 
     response = main.send_test_alert()
 
     assert response["ok"] is True
     assert sent
     assert sent[0][0] == "123456"
-    assert "MarshallBot Test Alert" in sent[0][1]
+    assert "Alpha Wolf" in sent[0][1]
+    assert "alphawolf.example" in sent[0][1]
+    assert "t.me/alphawolf" in sent[0][1]
+
+
+def test_test_alert_endpoint_reports_when_no_real_projects_exist(monkeypatch) -> None:
+    monkeypatch.setattr(main, "list_top_today_projects", lambda limit=1: [])
+    monkeypatch.setattr(main, "list_ranking_dashboard", lambda limit=1: [])
+    monkeypatch.setattr(main, "list_top_projects", lambda limit=1: [])
+    monkeypatch.setattr(main.settings, "telegram_bot_token", "token")
+    monkeypatch.setattr(main.settings, "telegram_chat_id", "123456")
+
+    response = main.send_test_alert()
+
+    assert response["ok"] is False
+    assert response["reason"] == "no_real_projects_found"
 
 
 def test_retry_alert_endpoint_delegates(monkeypatch) -> None:

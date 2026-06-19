@@ -223,7 +223,7 @@
         <p>Discovery, ranking, and source health at a glance.</p>
         <input id="project-search" class="search-box" type="search" placeholder="Search projects or sources..." autocomplete="off" />
         <div class="actions">
-          <button class="action-btn" onclick="sendTestAlert()">Send Test Alert</button>
+          <button class="action-btn" onclick="sendTestAlert()">Send Latest Real Alert</button>
           <button class="action-btn" onclick="downloadStateExport()">Export State</button>
         </div>
       </div>
@@ -1195,10 +1195,10 @@
           if (!res.ok || payload.ok === false) {
             throw new Error(payload.reason || `Request failed with ${res.status}`);
           }
-          document.getElementById('status-banner').textContent = 'Test alert sent. Check Telegram.';
+          document.getElementById('status-banner').textContent = `Alert sent for ${payload.project?.canonical_name || 'latest real project'}. Check Telegram.`;
           document.getElementById('status-banner').classList.remove('error');
         } catch (err) {
-          document.getElementById('status-banner').textContent = `Test alert failed: ${err.message}`;
+          document.getElementById('status-banner').textContent = `Alert failed: ${err.message}`;
           document.getElementById('status-banner').classList.add('error');
         }
       }
