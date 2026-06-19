@@ -13,7 +13,6 @@ COPY pyproject.toml /app/pyproject.toml
 COPY app /app/app
 COPY config /app/config
 
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir .
+RUN pip install --no-cache-dir .
 
 EXPOSE 8000
