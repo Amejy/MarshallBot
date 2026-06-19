@@ -61,6 +61,7 @@ The main values you may need are:
 - `daily_alert_limit` - max alerts sent per day
 - `min_score_to_alert` - minimum score required before an opportunity is alerted
 - List fields like `launchpad_sources`, `telegram_channels`, `social_accounts`, and `admin_chat_ids` accept either JSON arrays or simple comma-separated values in `.env`
+- Live scoring defaults come from [`config/runtime.json`](/home/mohammed/MarshallBot/config/runtime.json) and can be adjusted from the dashboard after launch
 
 ## Local Notes
 

@@ -1,0 +1,14 @@
+{
+  "daily_alert_limit": 30,
+  "min_score_to_alert": 80,
+  "ranking_weights": {
+    "freshness": 0.14,
+    "telegram_presence": 0.16,
+    "social_activity": 0.14,
+    "website_quality": 0.18,
+    "growth_rate": 0.1,
+    "source_quality": 0.12,
+    "community_activity": 0.1,
+    "spam_penalty": 0.16
+  }
+}
