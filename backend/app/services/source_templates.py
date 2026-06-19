@@ -195,6 +195,32 @@ def list_source_templates() -> list[dict]:
         },
         {
             "mode": "profile",
+            "label": "Pump.fun X watch",
+            "description": "Track Pump.fun's public X profile as an early social signal for new Solana launches.",
+            "example": {
+                "name": "pumpfun-x-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "solana",
+                "limit": 25,
+                "url": "https://x.com/pumpdotfun",
+            },
+        },
+        {
+            "mode": "profile",
+            "label": "Dexscreener X watch",
+            "description": "Track Dexscreener's public X profile as a market-wide early discovery signal.",
+            "example": {
+                "name": "dexscreener-x-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "multi",
+                "limit": 25,
+                "url": "https://x.com/dexscreener",
+            },
+        },
+        {
+            "mode": "profile",
             "label": "Dexscreener Solana watch",
             "description": "Track Dexscreener Solana pages as a discovery source for fresh communities and project links.",
             "example": {

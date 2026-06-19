@@ -59,6 +59,22 @@
       "url": "https://x.com/pancakeswap"
     },
     {
+      "name": "pumpfun-x-watch",
+      "enabled": true,
+      "mode": "profile",
+      "chain": "solana",
+      "limit": 25,
+      "url": "https://x.com/pumpdotfun"
+    },
+    {
+      "name": "dexscreener-x-watch",
+      "enabled": true,
+      "mode": "profile",
+      "chain": "multi",
+      "limit": 25,
+      "url": "https://x.com/dexscreener"
+    },
+    {
       "name": "dexscreener-solana-watch",
       "enabled": true,
       "mode": "profile",

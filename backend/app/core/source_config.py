@@ -135,6 +135,22 @@ class SourceConfig:
                 "limit": 25,
                 "url": "https://example.com/bsc-feed.xml",
             },
+            "pumpfun-x-watch": {
+                "name": "pumpfun-x-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "solana",
+                "limit": 25,
+                "url": "https://x.com/pumpdotfun",
+            },
+            "dexscreener-x-watch": {
+                "name": "dexscreener-x-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "multi",
+                "limit": 25,
+                "url": "https://x.com/dexscreener",
+            },
             "dexscreener-solana-watch": {
                 "name": "dexscreener-solana-watch",
                 "enabled": True,
@@ -188,6 +204,8 @@ def build_source_selection_summary(config: SourceConfig | None = None) -> dict[s
         "social_accounts": SourceConfig._selection_summary(list(settings.social_accounts), config.social_accounts, {
             "alpha-x-watch": {"name": "alpha-x-watch"},
             "bsc-social-feed": {"name": "bsc-social-feed"},
+            "pumpfun-x-watch": {"name": "pumpfun-x-watch"},
+            "dexscreener-x-watch": {"name": "dexscreener-x-watch"},
             "dexscreener-solana-watch": {"name": "dexscreener-solana-watch"},
             "dexscreener-bsc-watch": {"name": "dexscreener-bsc-watch"},
         }),
