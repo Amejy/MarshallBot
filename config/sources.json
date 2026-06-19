@@ -67,6 +67,38 @@
       "url": "https://x.com/pancakeswap"
     },
     {
+      "name": "solanahub-watch",
+      "enabled": true,
+      "mode": "profile",
+      "chain": "solana",
+      "limit": 25,
+      "url": "https://x.com/SolanaHub_"
+    },
+    {
+      "name": "tokens-watch",
+      "enabled": true,
+      "mode": "profile",
+      "chain": "multi",
+      "limit": 25,
+      "url": "https://x.com/tokens"
+    },
+    {
+      "name": "solana-watch",
+      "enabled": true,
+      "mode": "profile",
+      "chain": "solana",
+      "limit": 25,
+      "url": "https://x.com/solana"
+    },
+    {
+      "name": "bscgemsalert-watch",
+      "enabled": true,
+      "mode": "profile",
+      "chain": "bsc",
+      "limit": 25,
+      "url": "https://x.com/BSCGemsAlert"
+    },
+    {
       "name": "pumpfun-x-watch",
       "enabled": true,
       "mode": "profile",

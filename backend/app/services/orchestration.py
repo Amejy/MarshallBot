@@ -159,7 +159,7 @@ def process_source(
 
         evaluated = evaluate_project(project, signals)
         evaluated["keep"] = should_keep_project(
-            project,
+            {**project, "project_age_hours": evaluated.get("project_age_hours")},
             evaluated["score"],
             config,
             blacklisted_domains=source_config.blacklisted_domains,

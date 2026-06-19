@@ -29,6 +29,12 @@ def build_alert_message(project: dict, score: float) -> str:
         f"Website: {project.get('website_url')}",
         f"Telegram: {project.get('telegram_url')}",
     ]
+    project_age_hours = project.get("project_age_hours")
+    if project_age_hours is not None:
+        try:
+            lines.append(f"Age: {float(project_age_hours):.1f}h")
+        except (TypeError, ValueError):
+            pass
     source_trust_level = project.get("source_trust_level")
     if source_trust_level is not None:
         try:

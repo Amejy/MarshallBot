@@ -10,6 +10,8 @@ from app.services.trust import source_noise_penalty, source_trust_score
 class RankingConfig:
     min_score_to_alert: float = 75.0
     daily_alert_limit: int = 30
+    max_project_age_hours: float = 24.0
+    max_pair_age_hours: float = 24.0
 
 
 DEFAULT_WEIGHTS: dict[str, float] = {

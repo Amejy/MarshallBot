@@ -29,11 +29,11 @@ def upsert_project(project: dict) -> dict:
                 """
                 INSERT INTO projects (
                     canonical_name, normalized_name, chain, website_url, website_domain,
-                    telegram_url, x_url, discord_url, launch_source, first_seen_at, last_seen_at, status
+                    telegram_url, x_url, discord_url, launch_source, first_seen_at, last_seen_at, status, risk_flags
                 )
                 VALUES (
                     %(canonical_name)s, %(normalized_name)s, %(chain)s, %(website_url)s, %(website_domain)s,
-                    %(telegram_url)s, %(x_url)s, %(discord_url)s, %(launch_source)s, %(first_seen_at)s, %(last_seen_at)s, %(status)s
+                    %(telegram_url)s, %(x_url)s, %(discord_url)s, %(launch_source)s, %(first_seen_at)s, %(last_seen_at)s, %(status)s, %(risk_flags)s
                 )
                 ON CONFLICT (normalized_name, chain) DO UPDATE SET
                     canonical_name = EXCLUDED.canonical_name,
@@ -43,7 +43,11 @@ def upsert_project(project: dict) -> dict:
                     x_url = COALESCE(EXCLUDED.x_url, projects.x_url),
                     discord_url = COALESCE(EXCLUDED.discord_url, projects.discord_url),
                     launch_source = EXCLUDED.launch_source,
-                    last_seen_at = EXCLUDED.last_seen_at
+                    last_seen_at = EXCLUDED.last_seen_at,
+                    risk_flags = CASE
+                        WHEN EXCLUDED.risk_flags IS NULL OR EXCLUDED.risk_flags = '{}'::jsonb THEN projects.risk_flags
+                        ELSE COALESCE(projects.risk_flags, '{}'::jsonb) || EXCLUDED.risk_flags
+                    END
                 RETURNING *;
                 """,
                 {
@@ -59,6 +63,7 @@ def upsert_project(project: dict) -> dict:
                     "first_seen_at": project.get("first_seen_at", datetime.now(timezone.utc)),
                     "last_seen_at": datetime.now(timezone.utc),
                     "status": project.get("status", "new"),
+                    "risk_flags": project.get("risk_flags") or {},
                 },
             )
             row = cur.fetchone()

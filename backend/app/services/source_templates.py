@@ -195,6 +195,58 @@ def list_source_templates() -> list[dict]:
         },
         {
             "mode": "profile",
+            "label": "SolanaHub X watch",
+            "description": "Track a Solana-focused X profile for launch chatter and early project references.",
+            "example": {
+                "name": "solanahub-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "solana",
+                "limit": 25,
+                "url": "https://x.com/SolanaHub_",
+            },
+        },
+        {
+            "mode": "profile",
+            "label": "Tokens X watch",
+            "description": "Track the generic Tokens profile as a broad multi-chain discovery signal.",
+            "example": {
+                "name": "tokens-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "multi",
+                "limit": 25,
+                "url": "https://x.com/tokens",
+            },
+        },
+        {
+            "mode": "profile",
+            "label": "Solana X watch",
+            "description": "Track the main Solana profile for ecosystem announcements and early project mentions.",
+            "example": {
+                "name": "solana-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "solana",
+                "limit": 25,
+                "url": "https://x.com/solana",
+            },
+        },
+        {
+            "mode": "profile",
+            "label": "BSCGemsAlert X watch",
+            "description": "Track a BSC meme and gem alert profile for early BSC discovery chatter.",
+            "example": {
+                "name": "bscgemsalert-watch",
+                "enabled": True,
+                "mode": "profile",
+                "chain": "bsc",
+                "limit": 25,
+                "url": "https://x.com/BSCGemsAlert",
+            },
+        },
+        {
+            "mode": "profile",
             "label": "Pump.fun X watch",
             "description": "Track Pump.fun's public X profile as an early social signal for new Solana launches.",
             "example": {

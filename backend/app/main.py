@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime, timezone
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
@@ -89,9 +90,46 @@ def _latest_real_alert_project() -> tuple[dict[str, object] | None, float | None
         ("top_projects", list_top_projects),
     )
     best_candidate: tuple[dict[str, object], float, str] | None = None
+    best_rank: tuple[float, float, float, float] | None = None
+
+    def _project_age_hours(project: dict[str, object]) -> float | None:
+        for key in ("project_age_hours", "pair_created_at", "first_seen_at", "created_at", "published_at"):
+            value = project.get(key)
+            if value is None:
+                continue
+            if key == "project_age_hours":
+                try:
+                    return float(value)
+                except (TypeError, ValueError):
+                    continue
+            dt: datetime | None = None
+            if isinstance(value, datetime):
+                dt = value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+            elif isinstance(value, (int, float)):
+                numeric = float(value)
+                if numeric > 1_000_000_000_000:
+                    numeric /= 1000.0
+                dt = datetime.fromtimestamp(numeric, tz=timezone.utc)
+            else:
+                text = str(value).strip()
+                if text:
+                    try:
+                        dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
+                    except ValueError:
+                        dt = None
+            if dt is not None:
+                return max(0.0, (datetime.now(timezone.utc) - dt.astimezone(timezone.utc)).total_seconds() / 3600.0)
+        return None
 
     def _score_candidate(project: dict[str, object]) -> tuple[dict[str, object], float | None]:
         candidate = dict(project)
+        age_hours = _project_age_hours(candidate)
+        if age_hours is not None and age_hours > float(settings.max_project_age_hours):
+            return candidate, None
+        if not candidate.get("website_url") or not candidate.get("telegram_url"):
+            return candidate, None
+        if str(candidate.get("status", "")).lower() in {"duplicate", "rejected"}:
+            return candidate, None
         score = candidate.get("current_score")
         if score is None:
             score = candidate.get("best_score")
@@ -111,7 +149,25 @@ def _latest_real_alert_project() -> tuple[dict[str, object] | None, float | None
             score_value = float(score) if score is not None else None
         except (TypeError, ValueError):
             score_value = None
+        if score_value is not None and score_value < float(settings.min_score_to_alert):
+            return candidate, None
         return candidate, score_value
+
+    def _candidate_rank(project: dict[str, object], score_value: float | None) -> tuple[float, float, float, float]:
+        age_hours = _project_age_hours(project)
+        freshness = max(0.0, 100.0 - (age_hours * 4.0)) if age_hours is not None else 50.0
+        launch_source = str(project.get("launch_source", "")).lower()
+        if launch_source in {"pump-fun", "four-meme"}:
+            source_priority = 3.0
+        elif launch_source.startswith("dexscreener"):
+            source_priority = 2.0
+        elif launch_source:
+            source_priority = 1.0
+        else:
+            source_priority = 0.0
+        score_component = float(score_value or 0.0)
+        age_component = float(100.0 - age_hours) if age_hours is not None else 0.0
+        return source_priority, freshness, score_component, age_component
 
     for source_name, loader in project_sources:
         try:
@@ -124,8 +180,10 @@ def _latest_real_alert_project() -> tuple[dict[str, object] | None, float | None
             project, score_value = _score_candidate(dict(raw_project))
             if score_value is None:
                 continue
-            if best_candidate is None or score_value > best_candidate[1]:
+            candidate_rank = _candidate_rank(project, score_value)
+            if best_candidate is None or best_rank is None or candidate_rank > best_rank:
                 best_candidate = (project, score_value, source_name)
+                best_rank = candidate_rank
     if best_candidate is not None:
         return best_candidate
     return None, None, None
@@ -255,6 +313,7 @@ def send_test_alert() -> dict[str, object]:
             "website_url": project.get("website_url"),
             "telegram_url": project.get("telegram_url"),
             "launch_source": project.get("launch_source"),
+            "project_age_hours": project.get("project_age_hours"),
             "current_score": project.get("current_score"),
             "best_score": project.get("best_score"),
             "selected_from": source_name,

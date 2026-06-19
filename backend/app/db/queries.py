@@ -183,6 +183,7 @@ def list_ranking_dashboard(limit: int = 30) -> list[dict]:
                     p.x_url,
                     p.discord_url,
                     p.launch_source,
+                    p.risk_flags ->> 'pair_created_at' AS pair_created_at,
                     sa.trust_level AS source_trust_level,
                     COALESCE(t.trust_after - t.trust_before, 0) AS source_trust_movement,
                     CASE
@@ -387,6 +388,7 @@ def search_projects(query: str, limit: int = 20) -> list[dict]:
                     p.x_url,
                     p.discord_url,
                     p.launch_source,
+                    p.risk_flags ->> 'pair_created_at' AS pair_created_at,
                     sa.trust_level AS source_trust_level,
                     COALESCE(t.trust_after - t.trust_before, 0) AS source_trust_movement,
                     CASE

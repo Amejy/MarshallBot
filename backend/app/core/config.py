@@ -75,6 +75,8 @@ class Settings(BaseSettings):
     telegram_session_string: str = ""
     daily_alert_limit: int = 30
     min_score_to_alert: float = 75.0
+    max_project_age_hours: float = 24.0
+    max_pair_age_hours: float = 24.0
     launchpad_sources: list[str] = []
     telegram_channels: list[str] = []
     social_accounts: list[str] = []

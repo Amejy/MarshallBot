@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-
 from app.core.dedupe import fingerprint
 from app.core.scoring import ScoreBreakdown, score_explanations
 from app.db.repository import (
@@ -31,7 +30,28 @@ def normalize_event(event: dict) -> dict:
 
 
 def ingest_discovery_event(event: dict) -> dict:
-    project = upsert_project(normalize_event(event))
+    project_record = normalize_event(event)
+    project_record["risk_flags"] = {
+        key: value
+        for key, value in event.items()
+        if key
+        in {
+            "pair_created_at",
+            "token_address",
+            "pair_address",
+            "liquidity_usd",
+            "liquidity_base",
+            "liquidity_quote",
+            "volume_24h",
+            "fdv",
+            "market_cap",
+            "price_usd",
+            "dexscreener_url",
+            "profile_url",
+        }
+        and value is not None
+    }
+    project = upsert_project(project_record)
     if project.get("id"):
         insert_project_event(
             int(project["id"]),
@@ -55,6 +75,77 @@ def _signal_text(event: dict, project: dict) -> str:
         str(project.get("discord_url", "")),
     ]
     return " ".join(part for part in parts if part).lower()
+
+
+def _coerce_datetime(value: object) -> datetime | None:
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    if isinstance(value, (int, float)):
+        numeric = float(value)
+        if numeric > 1_000_000_000_000:
+            numeric /= 1000.0
+        return datetime.fromtimestamp(numeric, tz=timezone.utc)
+    text = str(value).strip()
+    if not text:
+        return None
+    if text.isdigit():
+        numeric = float(text)
+        if numeric > 1_000_000_000_000:
+            numeric /= 1000.0
+        return datetime.fromtimestamp(numeric, tz=timezone.utc)
+    normalized = text.replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+
+
+def _project_age_hours(event: dict, project: dict) -> float | None:
+    for key in ("pair_created_at", "first_seen_at", "created_at", "published_at"):
+        dt = _coerce_datetime(project.get(key) or event.get(key))
+        if dt is not None:
+            delta = datetime.now(timezone.utc) - dt.astimezone(timezone.utc)
+            return max(0.0, delta.total_seconds() / 3600.0)
+    return None
+
+
+def _freshness_from_age(age_hours: float | None, source_type: str | None = None, chain: str | None = None) -> float:
+    if age_hours is None:
+        if source_type == "launchpad":
+            return 92.0
+        if source_type == "telegram":
+            return 84.0
+        return 72.0
+
+    # Freshness drops quickly as a project ages so late-stage tokens stop
+    # outranking genuinely new launches.
+    if age_hours <= 1:
+        freshness = 100.0
+    elif age_hours <= 3:
+        freshness = 96.0
+    elif age_hours <= 6:
+        freshness = 90.0
+    elif age_hours <= 12:
+        freshness = 82.0
+    elif age_hours <= 24:
+        freshness = 72.0
+    elif age_hours <= 48:
+        freshness = 55.0
+    elif age_hours <= 72:
+        freshness = 38.0
+    else:
+        freshness = 15.0
+
+    if source_type == "launchpad":
+        freshness += 4.0
+    elif source_type == "telegram":
+        freshness += 2.0
+    if chain == "solana" and age_hours <= 6:
+        freshness += 2.0
+    return max(0.0, min(100.0, freshness))
 
 
 def _social_velocity_score(event: dict, project: dict, chain: str | None, source_type: str | None = None) -> tuple[float, float]:
@@ -114,6 +205,7 @@ def build_default_signals(
     launch_source = str(event.get("launch_source", ""))
     source_type = str(event.get("source_type", ""))
     chain = str(project.get("chain") or event.get("chain") or "").lower()
+    age_hours = _project_age_hours(event, project)
     has_website = bool(project.get("website_url") or event.get("website_url"))
     has_telegram = bool(project.get("telegram_url") or event.get("telegram_url"))
     has_x = bool(project.get("x_url") or event.get("x_url"))
@@ -127,7 +219,7 @@ def build_default_signals(
         source_trust_level = 88.0 if is_trusted else 78.0 if is_launchpad else 72.0 if is_research else 55.0
 
     signals = dict(default_signals or {})
-    signals.setdefault("freshness", 92 if is_launchpad else 84 if is_research else 80)
+    signals.setdefault("freshness", _freshness_from_age(age_hours, source_type=source_type, chain=chain))
     signals.setdefault("telegram_presence", 92 if has_telegram else 0)
     signals.setdefault("social_activity", social_activity)
     signals.setdefault("website_quality", 55 if has_website else 0)
@@ -135,6 +227,7 @@ def build_default_signals(
     signals.setdefault("source_quality", 85 if is_trusted else 75 if is_launchpad else 70 if is_research else 55)
     signals.setdefault("community_activity", community_activity)
     signals.setdefault("spam_penalty", 0)
+    signals.setdefault("project_age_hours", age_hours)
     signals.setdefault("source_name", source_name)
     signals.setdefault("trusted_sources", trusted_sources)
     signals.setdefault("source_trust_level", source_trust_level)
@@ -163,6 +256,7 @@ def evaluate_project(project: dict, signals: dict) -> dict:
         "discord_url": project.get("discord_url"),
         "launch_source": project.get("launch_source"),
         "first_seen_at": project.get("first_seen_at"),
+        "project_age_hours": signals.get("project_age_hours"),
         "score": score,
         "breakdown": breakdown,
         "score_explanations": score_explanations(breakdown_model),

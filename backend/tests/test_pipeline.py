@@ -1,5 +1,9 @@
+from datetime import datetime, timezone, timedelta
+
 from app.services.pipeline import build_default_signals, evaluate_project, ingest_discovery_event, normalize_event
 from app.core.source_config import SourceConfig
+from app.services.decision import should_keep_project
+from app.services.ranking import RankingConfig
 
 
 def test_normalize_event_defaults() -> None:
@@ -120,3 +124,34 @@ def test_build_default_signals_rewards_multiple_social_channels() -> None:
 
     assert signals["social_activity"] >= 80
     assert signals["community_activity"] >= 70
+
+
+def test_build_default_signals_uses_pair_age_for_freshness() -> None:
+    pair_created_at = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat().replace("+00:00", "Z")
+    signals = build_default_signals(
+        {
+            "canonical_name": "FreshToken",
+            "chain": "solana",
+            "launch_source": "dexscreener-solana-watch",
+            "source_type": "launchpad",
+            "source_name": "dexscreener-solana-watch",
+        },
+        project={
+            "chain": "solana",
+            "pair_created_at": pair_created_at,
+            "telegram_url": "https://t.me/fresh",
+            "website_url": "https://fresh.example",
+        },
+        source_config=SourceConfig(trusted_sources=["dexscreener-solana-watch"]),
+    )
+
+    assert signals["project_age_hours"] is not None
+    assert signals["freshness"] >= 90
+
+
+def test_should_keep_project_rejects_old_projects() -> None:
+    assert not should_keep_project(
+        {"project_age_hours": 72.1, "website_url": "https://example.com", "telegram_url": "https://t.me/example"},
+        95.0,
+        RankingConfig(max_project_age_hours=24.0),
+    )
