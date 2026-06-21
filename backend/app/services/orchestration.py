@@ -7,7 +7,7 @@ from app.services.pipeline import build_default_signals, ingest_discovery_event,
 from app.services.ranking import RankingConfig
 from app.services.selection import select_top_opportunities
 from app.services.sources import DiscoverySource
-from app.db.repository import adjust_source_trust, persist_score, store_website_snapshot
+from app.db.repository import adjust_source_trust, persist_score, store_website_snapshot, upsert_project
 from app.db.repository import project_scored_recently, upsert_social_profile, upsert_source_account
 from app.core.source_config import SourceConfig
 from app.services.pumpfun import enrich_pumpfun_project
@@ -91,6 +91,20 @@ def _social_profile_entries(project: dict, event: dict) -> list[dict[str, object
     return entries
 
 
+def _merge_website_links(project: dict, website: dict) -> dict:
+    merged = dict(project)
+    parsed_data = website.get("parsed_data") or {}
+    for field_name, parsed_key in (
+        ("telegram_url", "telegram_links"),
+        ("x_url", "x_links"),
+        ("discord_url", "discord_links"),
+    ):
+        links = parsed_data.get(parsed_key) or []
+        if links and not merged.get(field_name):
+            merged[field_name] = links[0]
+    return merged
+
+
 def process_source(
     source: DiscoverySource,
     config: RankingConfig,
@@ -141,6 +155,7 @@ def process_source(
                 }
             )
             continue
+        website = None
         signals = build_default_signals(
             event,
             project=project,
@@ -152,6 +167,16 @@ def process_source(
         if enrich_websites and project.get("website_url"):
             try:
                 website = enrich_website(str(project["website_url"]))
+                project = _merge_website_links(project, website)
+                if project.get("id"):
+                    _safe_db_call(upsert_project, project)
+                signals = build_default_signals(
+                    event,
+                    project=project,
+                    source_config=source_config,
+                    default_signals={**(default_signals or {}), "source_trust_level": current_trust_level},
+                )
+                signals["spam_penalty"] = spam_penalty(event)
                 signals["website_quality"] = website_quality_score(website["parsed_data"], chain=str(project.get("chain")))
                 signals["spam_penalty"] = max(float(signals.get("spam_penalty", 0)), spam_penalty({**event, **website}))
             except Exception:
@@ -205,13 +230,8 @@ def process_source(
                     else "flat"
                 )
                 evaluated["source_trust_updated"] = float(updated_trust)
-        if enrich_websites and project.get("website_url") and evaluated.get("project_id"):
-            try:
-                website = enrich_website(str(project["website_url"]))
-                signals["website_quality"] = website_quality_score(website["parsed_data"], chain=str(project.get("chain")))
-                _safe_db_call(store_website_snapshot, int(evaluated["project_id"]), website)
-            except Exception:
-                pass
+        if website and evaluated.get("project_id"):
+            _safe_db_call(store_website_snapshot, int(evaluated["project_id"]), website)
         results.append(evaluated)
     selected = select_top_opportunities(results, config.daily_alert_limit)
     for item in results:

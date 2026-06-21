@@ -1,6 +1,6 @@
 from app.core.source_config import SourceConfig
 from app.services.source_builder import build_source_registry
-from app.services.telegram_research import _extract_website_links, _infer_project_name, build_telegram_onboarding, normalize_public_channel_name, normalize_public_channel_url
+from app.services.telegram_research import _extract_website_links, _infer_project_name, build_telegram_onboarding, normalize_public_channel_name, normalize_public_channel_url, TelegramResearchConfig, TelegramResearchSource
 
 
 def test_infer_project_name_uses_first_line() -> None:
@@ -274,3 +274,63 @@ def test_public_telegram_channel_source_collects_quality_items(monkeypatch) -> N
     assert items[0]["website_url"] == "https://alpha.io"
     assert items[0]["telegram_url"] == "https://t.me/alpha"
     assert items[0]["source_type"] == "telegram"
+
+
+def test_public_telegram_channel_source_keeps_website_only_posts(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.services.telegram_research.fetch_text",
+        lambda url, timeout=20: """
+        <html>
+          <body>
+            <div class="tgme_widget_message_text js-message_text" dir="auto">
+              Alpha launch https://alpha.io
+            </div>
+          </body>
+        </html>
+        """,
+    )
+
+    from app.services.telegram_research import TelegramPublicChannelSource
+
+    source = TelegramPublicChannelSource("alpha-public", "AlphaMemeWatch", chain="solana", limit=10)
+    items = source.collect()
+
+    assert len(items) == 1
+    assert items[0]["website_url"] == "https://alpha.io"
+    assert items[0]["telegram_url"] is None
+
+
+def test_telegram_research_source_keeps_website_only_messages(monkeypatch) -> None:
+    class FakeMessage:
+        id = 1
+        date = "2026-06-21T00:00:00Z"
+        message = "Alpha launch https://alpha.io"
+
+    class FakeClient:
+        def __init__(self, *args, **kwargs):
+            self.args = args
+            self.kwargs = kwargs
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def iter_messages(self, channel, limit=100):
+            yield FakeMessage()
+
+    monkeypatch.setattr("app.services.telegram_research.TelegramClient", FakeClient)
+
+    source = TelegramResearchSource(
+        "alpha-research",
+        ["AlphaMemeWatch"],
+        chain="solana",
+        limit=10,
+        config=TelegramResearchConfig(api_id=1, api_hash="hash", session_string="session"),
+    )
+    items = source.collect()
+
+    assert len(items) == 1
+    assert items[0]["website_url"] == "https://alpha.io"
+    assert items[0]["telegram_url"] is None

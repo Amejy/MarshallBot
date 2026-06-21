@@ -184,7 +184,7 @@ class TelegramResearchSource(DiscoverySource):
                     website_links = _extract_website_links(text)
                     social_links = extract_social_links(text)
                     telegram_links = social_links.get("telegram", [])
-                    if not website_links or not telegram_links:
+                    if not website_links:
                         continue
 
                     collected.append(
@@ -193,8 +193,8 @@ class TelegramResearchSource(DiscoverySource):
                             "chain": self.chain,
                             "website_url": website_links[0] if website_links else None,
                             "telegram_url": telegram_links[0] if telegram_links else None,
-                            "x_url": social_links.get("x", [None])[0],
-                            "discord_url": social_links.get("discord", [None])[0],
+                            "x_url": social_links.get("x", [None])[0] if social_links.get("x") else None,
+                            "discord_url": social_links.get("discord", [None])[0] if social_links.get("discord") else None,
                             "launch_source": self.name,
                             "source_type": "telegram",
                             "source_name": self.name,
@@ -251,7 +251,7 @@ class TelegramPublicChannelSource(DiscoverySource):
             telegram_links = list(dict.fromkeys([*(parsed.get("telegram_links") or []), *socials.get("telegram", [])]))
             x_links = list(dict.fromkeys([*(parsed.get("x_links") or []), *socials.get("x", [])]))
             discord_links = list(dict.fromkeys([*(parsed.get("discord_links") or []), *socials.get("discord", [])]))
-            if not website_links or not telegram_links:
+            if not website_links:
                 continue
 
             items.append(
@@ -259,7 +259,7 @@ class TelegramPublicChannelSource(DiscoverySource):
                     "canonical_name": _infer_project_name(_clean_text_for_name(raw_text), fallback=self.channel),
                     "chain": self.chain,
                     "website_url": website_links[0],
-                    "telegram_url": telegram_links[0],
+                    "telegram_url": telegram_links[0] if telegram_links else None,
                     "x_url": x_links[0] if x_links else None,
                     "discord_url": discord_links[0] if discord_links else None,
                     "launch_source": self.name,
