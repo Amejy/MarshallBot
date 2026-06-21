@@ -74,7 +74,7 @@ class Settings(BaseSettings):
     telegram_api_hash: str = ""
     telegram_session_string: str = ""
     daily_alert_limit: int = 30
-    min_score_to_alert: float = 75.0
+    min_score_to_alert: float = 78.0
     max_project_age_hours: float = 24.0
     max_pair_age_hours: float = 24.0
     launchpad_sources: list[str] = []

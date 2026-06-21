@@ -351,7 +351,7 @@
         },
         runtime_config: {
           daily_alert_limit: 30,
-          min_score_to_alert: 72,
+          min_score_to_alert: 78,
           ranking_weights: {
             freshness: 0.14,
             telegram_presence: 0.16,
@@ -364,7 +364,7 @@
           },
         },
         runtime_config_history: [
-          { changed_at: "2026-06-11T11:15:00Z", changed_by: "dashboard", daily_alert_limit: 30, min_score_to_alert: 72, ranking_weights: { freshness: 0.14 } },
+          { changed_at: "2026-06-11T11:15:00Z", changed_by: "dashboard", daily_alert_limit: 30, min_score_to_alert: 78, ranking_weights: { freshness: 0.14 } },
         ],
         runtime_health: {
           beat: { timestamp: "2026-06-11T11:20:00Z", age_seconds: 24, healthy: true },
@@ -717,7 +717,7 @@
         return `
           <div class="detail-grid">
             <div class="detail-row"><div class="detail-label">Daily Alert Limit</div><div class="detail-value"><input id="runtime-daily-alert-limit" class="search-box" type="number" min="1" value="${runtimeConfig.daily_alert_limit ?? 30}" /></div></div>
-            <div class="detail-row"><div class="detail-label">Min Score</div><div class="detail-value"><input id="runtime-min-score-to-alert" class="search-box" type="number" min="0" max="100" step="0.1" value="${runtimeConfig.min_score_to_alert ?? 72}" /></div></div>
+            <div class="detail-row"><div class="detail-label">Min Score</div><div class="detail-value"><input id="runtime-min-score-to-alert" class="search-box" type="number" min="0" max="100" step="0.1" value="${runtimeConfig.min_score_to_alert ?? 78}" /></div></div>
             <div class="detail-row"><div class="detail-label">Freshness</div><div class="detail-value"><input id="weight-freshness" class="search-box" type="number" min="0" max="1" step="0.01" value="${weights.freshness ?? 0.14}" /></div></div>
             <div class="detail-row"><div class="detail-label">Telegram Presence</div><div class="detail-value"><input id="weight-telegram_presence" class="search-box" type="number" min="0" max="1" step="0.01" value="${weights.telegram_presence ?? 0.16}" /></div></div>
             <div class="detail-row"><div class="detail-label">Social Activity</div><div class="detail-value"><input id="weight-social_activity" class="search-box" type="number" min="0" max="1" step="0.01" value="${weights.social_activity ?? 0.14}" /></div></div>
