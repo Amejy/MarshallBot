@@ -1,9 +1,14 @@
-from app.services.pumpfun import PumpFunSource, _parse_market_cap, enrich_pumpfun_project
+from app.services.pumpfun import PumpFunSource, _parse_age_minutes, _parse_market_cap, enrich_pumpfun_project
 
 
 def test_parse_market_cap() -> None:
     assert _parse_market_cap("$ 5.00K MC") == 5000.0
     assert _parse_market_cap("$ 8.12M MC") == 8_120_000.0
+
+
+def test_parse_age_minutes() -> None:
+    assert _parse_age_minutes("Molecoin $MOLE $ 5.00K MC 8m") == 8.0
+    assert _parse_age_minutes("Fresh token 2h") == 120.0
 
 
 def test_pumpfun_source_collects_items(monkeypatch) -> None:
@@ -23,7 +28,9 @@ def test_pumpfun_source_collects_items(monkeypatch) -> None:
     assert len(items) == 2
     assert items[0]["launch_source"] == "pump-fun"
     assert items[0]["chain"] == "solana"
-    assert items[0]["pumpfun_url"].endswith("/coin/ABC123")
+    assert items[0]["pumpfun_url"].endswith("/coin/XYZ789")
+    assert items[0]["project_age_minutes"] == 4.0
+    assert items[1]["project_age_minutes"] == 8.0
 
 
 def test_enrich_pumpfun_project_extracts_links(monkeypatch) -> None:

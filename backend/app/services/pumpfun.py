@@ -12,6 +12,7 @@ from app.services.sources import DiscoverySource
 
 COIN_URL_RE = re.compile(r"^/coin/([A-Za-z0-9]+)$")
 MC_RE = re.compile(r"\$?\s*([\d,.]+)\s*([KMB])?\s*MC", re.IGNORECASE)
+AGE_RE = re.compile(r"\b(\d+(?:\.\d+)?)\s*([smhd])\b", re.IGNORECASE)
 
 
 def _parse_market_cap(text: str) -> float | None:
@@ -28,6 +29,28 @@ def _parse_market_cap(text: str) -> float | None:
     elif suffix == "B":
         value *= Decimal("1000000000")
     return float(value)
+
+
+def _parse_age_minutes(text: str) -> float | None:
+    matches = AGE_RE.findall(text or "")
+    if not matches:
+        return None
+
+    for raw_value, unit in matches:
+        try:
+            value = float(raw_value)
+        except (TypeError, ValueError):
+            continue
+        unit = unit.lower()
+        if unit == "s":
+            return max(0.0, value / 60.0)
+        if unit == "m":
+            return max(0.0, value)
+        if unit == "h":
+            return max(0.0, value * 60.0)
+        if unit == "d":
+            return max(0.0, value * 1440.0)
+    return None
 
 
 class _PumpFunParser(HTMLParser):
@@ -75,6 +98,7 @@ class PumpFunSource(DiscoverySource):
             parts = text.split()
             canonical_name = parts[0].strip() if parts else href.rsplit("/", 1)[-1]
             market_cap = _parse_market_cap(text)
+            age_minutes = _parse_age_minutes(text)
             projects.append(
                 {
                     "canonical_name": canonical_name,
@@ -88,10 +112,17 @@ class PumpFunSource(DiscoverySource):
                     "source_name": "pump-fun",
                     "pumpfun_url": urljoin(self.url, href),
                     "market_cap_estimate": market_cap,
+                    "project_age_minutes": age_minutes,
                     "raw_text": text,
                 }
             )
-        return projects
+        return sorted(
+            projects,
+            key=lambda item: (
+                float(item.get("project_age_minutes") if item.get("project_age_minutes") is not None else 999999.0),
+                float(item.get("market_cap_estimate") if item.get("market_cap_estimate") is not None else 999999999.0),
+            ),
+        )
 
 
 def enrich_pumpfun_project(project: dict) -> dict:
