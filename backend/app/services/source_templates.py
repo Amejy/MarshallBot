@@ -168,6 +168,19 @@ def list_source_templates() -> list[dict]:
             },
         },
         {
+            "mode": "public",
+            "label": "Telegram launch watch",
+            "description": "Use a public Telegram channel as an early launch and announcement source.",
+            "example": {
+                "name": "telegram-public-watch",
+                "enabled": True,
+                "mode": "public",
+                "chain": "solana",
+                "limit": 20,
+                "channel": "YOUR_PUBLIC_CHANNEL_USERNAME",
+            },
+        },
+        {
             "mode": "rss",
             "label": "Social account feed",
             "description": "Public social or announcement feeds that should be treated as social discovery inputs.",

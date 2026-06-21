@@ -109,6 +109,14 @@ class SourceConfig:
                 "limit": 100,
                 "channels": ["AlphaMemeWatch"],
             },
+            "telegram-public-watch": {
+                "name": "telegram-public-watch",
+                "enabled": True,
+                "mode": "public",
+                "chain": "solana",
+                "limit": 20,
+                "channel": "YOUR_PUBLIC_CHANNEL_USERNAME",
+            },
             "telegram-research-template": {
                 "name": "telegram-research-template",
                 "enabled": True,
@@ -229,8 +237,9 @@ def build_source_selection_summary(config: SourceConfig | None = None) -> dict[s
             "bsc-homepages": {"name": "bsc-homepages"},
             "crypto-breaking-news": {"name": "crypto-breaking-news"},
         }),
-            "telegram_channels": SourceConfig._selection_summary(list(settings.telegram_channels), config.telegram_channels, {
+        "telegram_channels": SourceConfig._selection_summary(list(settings.telegram_channels), config.telegram_channels, {
             "alpha-meme-watch": {"name": "alpha-meme-watch"},
+            "telegram-public-watch": {"name": "telegram-public-watch"},
             "telegram-research-template": {"name": "telegram-research-template"},
         }),
         "social_accounts": SourceConfig._selection_summary(list(settings.social_accounts), config.social_accounts, {
