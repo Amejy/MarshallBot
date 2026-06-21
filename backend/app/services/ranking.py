@@ -15,13 +15,13 @@ class RankingConfig:
 
 
 DEFAULT_WEIGHTS: dict[str, float] = {
-    "freshness": 0.20,
-    "telegram_presence": 0.15,
-    "social_activity": 0.15,
-    "website_quality": 0.15,
-    "growth_rate": 0.15,
-    "source_quality": 0.10,
-    "community_activity": 0.10,
+    "freshness": 0.25,
+    "telegram_presence": 0.14,
+    "social_activity": 0.12,
+    "website_quality": 0.18,
+    "growth_rate": 0.12,
+    "source_quality": 0.08,
+    "community_activity": 0.11,
     "spam_penalty": 0.10,
 }
 

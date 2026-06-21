@@ -14,13 +14,13 @@ class ScoreBreakdown:
 
     def final_score(self) -> float:
         score = (
-            0.20 * self.freshness
-            + 0.15 * self.telegram_presence
-            + 0.15 * self.social_activity
-            + 0.15 * self.website_quality
-            + 0.15 * self.growth_rate
-            + 0.10 * self.source_quality
-            + 0.10 * self.community_activity
+            0.25 * self.freshness
+            + 0.14 * self.telegram_presence
+            + 0.12 * self.social_activity
+            + 0.18 * self.website_quality
+            + 0.12 * self.growth_rate
+            + 0.08 * self.source_quality
+            + 0.11 * self.community_activity
             - 0.10 * self.spam_penalty
         )
         return round(max(0.0, min(100.0, score)), 2)
