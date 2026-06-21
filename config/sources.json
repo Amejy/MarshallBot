@@ -47,6 +47,14 @@
       ]
     },
     {
+      "name": "telegram-public-watch",
+      "enabled": true,
+      "mode": "public",
+      "chain": "solana",
+      "limit": 20,
+      "channel": "AlphaMemeWatch"
+    },
+    {
       "name": "telegram-research-template",
       "enabled": false,
       "mode": "research",
