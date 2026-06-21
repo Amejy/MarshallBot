@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 import re
 from urllib.parse import quote
 
@@ -94,12 +95,28 @@ def _best_pair(pairs: list[dict]) -> dict | None:
     return sorted(pairs, key=_score, reverse=True)[0]
 
 
+def _pair_age_hours(pair: dict) -> float | None:
+    created_at = pair.get("pairCreatedAt")
+    if created_at is None:
+        return None
+    try:
+        numeric = float(created_at)
+    except (TypeError, ValueError):
+        return None
+    if numeric > 1_000_000_000_000:
+        numeric /= 1000.0
+    created = datetime.fromtimestamp(numeric, tz=timezone.utc)
+    delta = datetime.now(timezone.utc) - created
+    return max(0.0, delta.total_seconds() / 3600.0)
+
+
 class DexScreenerSource(DiscoverySource):
-    def __init__(self, name: str, url: str, chain: str, limit: int = 25) -> None:
+    def __init__(self, name: str, url: str, chain: str, limit: int = 25, max_pair_age_hours: float | None = None) -> None:
         self.name = name
         self.url = url
         self.chain = chain
         self.limit = limit
+        self.max_pair_age_hours = max_pair_age_hours
 
     def _token_profiles(self) -> list[dict]:
         payload = fetch_json(PROFILE_ENDPOINT)
@@ -125,6 +142,11 @@ class DexScreenerSource(DiscoverySource):
         pair = _best_pair(pairs)
         if not pair:
             return None
+
+        pair_age_hours = _pair_age_hours(pair)
+        if self.max_pair_age_hours is not None:
+            if pair_age_hours is None or pair_age_hours > self.max_pair_age_hours:
+                return None
 
         base_token = pair.get("baseToken") if isinstance(pair.get("baseToken"), dict) else {}
         quote_token = pair.get("quoteToken") if isinstance(pair.get("quoteToken"), dict) else {}
@@ -175,6 +197,7 @@ class DexScreenerSource(DiscoverySource):
             "market_cap": pair.get("marketCap"),
             "price_usd": pair.get("priceUsd"),
             "pair_created_at": pair.get("pairCreatedAt"),
+            "pair_age_hours": pair_age_hours,
             "profile_url": _normalize_text(profile.get("url")),
             "profile_description": _normalize_text(profile.get("description")),
             "raw_text": _normalize_text(profile.get("description")) or _normalize_text(profile.get("label")) or "",

@@ -199,6 +199,15 @@ class SourceConfig:
                 "limit": 25,
                 "url": "https://dexscreener.com/solana",
             },
+            "dexscreener-solana-newpairs": {
+                "name": "dexscreener-solana-newpairs",
+                "enabled": True,
+                "mode": "newpairs",
+                "chain": "solana",
+                "limit": 50,
+                "url": "https://dexscreener.com/solana",
+                "max_pair_age_hours": 12,
+            },
             "dexscreener-bsc-watch": {
                 "name": "dexscreener-bsc-watch",
                 "enabled": True,
@@ -206,6 +215,15 @@ class SourceConfig:
                 "chain": "bsc",
                 "limit": 25,
                 "url": "https://dexscreener.com/bsc",
+            },
+            "dexscreener-bsc-newpairs": {
+                "name": "dexscreener-bsc-newpairs",
+                "enabled": True,
+                "mode": "newpairs",
+                "chain": "bsc",
+                "limit": 50,
+                "url": "https://dexscreener.com/bsc",
+                "max_pair_age_hours": 12,
             },
         }
 
@@ -252,7 +270,9 @@ def build_source_selection_summary(config: SourceConfig | None = None) -> dict[s
             "pumpfun-x-watch": {"name": "pumpfun-x-watch"},
             "dexscreener-x-watch": {"name": "dexscreener-x-watch"},
             "dexscreener-solana-watch": {"name": "dexscreener-solana-watch"},
+            "dexscreener-solana-newpairs": {"name": "dexscreener-solana-newpairs"},
             "dexscreener-bsc-watch": {"name": "dexscreener-bsc-watch"},
+            "dexscreener-bsc-newpairs": {"name": "dexscreener-bsc-newpairs"},
         }),
         "keywords": list(config.keywords),
         "blacklisted_domains": list(config.blacklisted_domains),

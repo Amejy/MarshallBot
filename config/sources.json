@@ -137,6 +137,24 @@
       "chain": "bsc",
       "limit": 25,
       "url": "https://dexscreener.com/bsc"
+    },
+    {
+      "name": "dexscreener-solana-newpairs",
+      "enabled": true,
+      "mode": "newpairs",
+      "chain": "solana",
+      "limit": 50,
+      "url": "https://dexscreener.com/solana",
+      "max_pair_age_hours": 12
+    },
+    {
+      "name": "dexscreener-bsc-newpairs",
+      "enabled": true,
+      "mode": "newpairs",
+      "chain": "bsc",
+      "limit": 50,
+      "url": "https://dexscreener.com/bsc",
+      "max_pair_age_hours": 12
     }
   ],
   "keywords": [

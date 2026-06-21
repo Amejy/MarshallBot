@@ -144,7 +144,13 @@ def build_source_registry(config: SourceConfig) -> dict[str, object]:
         limit = int(account.get("limit", 25))
         items = account.get("items") or account.get("posts") or []
         if name.lower().startswith("dexscreener-") and "dexscreener.com" in url.lower():
-            registry[name] = DexScreenerSource(name, url, chain=chain if chain in {"solana", "bsc"} else "solana", limit=limit)
+            registry[name] = DexScreenerSource(
+                name,
+                url,
+                chain=chain if chain in {"solana", "bsc"} else "solana",
+                limit=limit,
+                max_pair_age_hours=float(account.get("max_pair_age_hours", 12)) if mode in {"recent", "newpairs", "new-pairs"} else None,
+            )
             continue
         if items:
             registry[name] = _TaggedSource(

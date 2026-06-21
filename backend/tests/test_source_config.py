@@ -38,6 +38,8 @@ def test_source_config_loads_default_sources_file() -> None:
     assert any(item.get("name") == "dexscreener-x-watch" and item.get("mode") == "profile" for item in config.social_accounts)
     assert any(item.get("name") == "dexscreener-solana-watch" and item.get("mode") == "profile" for item in config.social_accounts)
     assert any(item.get("name") == "dexscreener-bsc-watch" and item.get("mode") == "profile" for item in config.social_accounts)
+    assert any(item.get("name") == "dexscreener-solana-newpairs" and item.get("mode") == "newpairs" for item in config.social_accounts)
+    assert any(item.get("name") == "dexscreener-bsc-newpairs" and item.get("mode") == "newpairs" for item in config.social_accounts)
     assert "pump-fun" in config.trusted_sources
 
 

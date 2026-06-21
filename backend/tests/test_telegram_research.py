@@ -247,6 +247,90 @@ def test_build_source_registry_uses_dexscreener_watch_mode(monkeypatch) -> None:
     assert items[0]["telegram_url"] == "https://t.me/alpha"
 
 
+def test_build_source_registry_filters_old_dexscreener_pairs(monkeypatch) -> None:
+    def fake_fetch_json(url, timeout=20):
+        if url.endswith("/token-profiles/latest/v1"):
+            return [
+                {
+                    "chainId": "solana",
+                    "tokenAddress": "fresh123456",
+                    "url": "https://dexscreener.com/solana/fresh123456",
+                    "description": "Fresh Alpha",
+                    "links": [
+                        {"type": "website", "url": "https://fresh.alpha"},
+                        {"type": "telegram", "url": "https://t.me/freshalpha"},
+                    ],
+                },
+                {
+                    "chainId": "solana",
+                    "tokenAddress": "old12345678",
+                    "url": "https://dexscreener.com/solana/old12345678",
+                    "description": "Old Alpha",
+                    "links": [
+                        {"type": "website", "url": "https://old.alpha"},
+                        {"type": "telegram", "url": "https://t.me/oldalpha"},
+                    ],
+                },
+            ]
+        if url.endswith("/token-boosts/latest/v1"):
+            return []
+        if url.endswith("/token-pairs/v1/solana/fresh123456"):
+            return [
+                {
+                    "pairAddress": "pair-fresh",
+                    "url": "https://dexscreener.com/solana/pair-fresh",
+                    "baseToken": {"name": "Fresh Alpha", "symbol": "FRESH"},
+                    "quoteToken": {"name": "Solana", "symbol": "SOL"},
+                    "liquidity": {"usd": 12345},
+                    "volume": {"h24": 6789},
+                    "fdv": 555000,
+                    "marketCap": 444000,
+                    "priceUsd": 0.01,
+                    "pairCreatedAt": 4102444800000,
+                }
+            ]
+        if url.endswith("/token-pairs/v1/solana/old12345678"):
+            return [
+                {
+                    "pairAddress": "pair-old",
+                    "url": "https://dexscreener.com/solana/pair-old",
+                    "baseToken": {"name": "Old Alpha", "symbol": "OLD"},
+                    "quoteToken": {"name": "Solana", "symbol": "SOL"},
+                    "liquidity": {"usd": 9876},
+                    "volume": {"h24": 5432},
+                    "fdv": 222000,
+                    "marketCap": 111000,
+                    "priceUsd": 0.02,
+                    "pairCreatedAt": 1600000000000,
+                }
+            ]
+        raise AssertionError(f"unexpected url {url}")
+
+    monkeypatch.setattr("app.services.dexscreener.fetch_json", fake_fetch_json)
+
+    config = SourceConfig(
+        social_accounts=[
+            {
+                "name": "dexscreener-solana-newpairs",
+                "enabled": True,
+                "mode": "newpairs",
+                "chain": "solana",
+                "url": "https://dexscreener.com/solana",
+                "limit": 2,
+                "max_pair_age_hours": 12,
+            }
+        ]
+    )
+
+    registry = build_source_registry(config)
+    assert "dexscreener-solana-newpairs" in registry
+    items = registry["dexscreener-solana-newpairs"].collect()
+    assert len(items) == 1
+    assert items[0]["canonical_name"] == "Fresh Alpha"
+    assert items[0]["pair_address"] == "pair-fresh"
+    assert items[0]["pair_age_hours"] <= 12
+
+
 def test_public_telegram_channel_source_collects_quality_items(monkeypatch) -> None:
     monkeypatch.setattr(
         "app.services.telegram_research.fetch_text",

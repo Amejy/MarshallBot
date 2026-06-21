@@ -285,6 +285,20 @@ def list_source_templates() -> list[dict]:
             },
         },
         {
+            "mode": "newpairs",
+            "label": "DexScreener new pairs (Solana)",
+            "description": "Monitor the newest Solana pairs on DexScreener and keep only fresh launches.",
+            "example": {
+                "name": "dexscreener-solana-newpairs",
+                "enabled": True,
+                "mode": "newpairs",
+                "chain": "solana",
+                "limit": 50,
+                "url": "https://dexscreener.com/solana",
+                "max_pair_age_hours": 12,
+            },
+        },
+        {
             "mode": "profile",
             "label": "Dexscreener Solana watch",
             "description": "Crawl Dexscreener Solana pair pages as an early discovery source for fresh communities and project links.",
@@ -295,6 +309,20 @@ def list_source_templates() -> list[dict]:
                 "chain": "solana",
                 "limit": 25,
                 "url": "https://dexscreener.com/solana",
+            },
+        },
+        {
+            "mode": "newpairs",
+            "label": "DexScreener new pairs (BSC)",
+            "description": "Monitor the newest BSC pairs on DexScreener and keep only fresh launches.",
+            "example": {
+                "name": "dexscreener-bsc-newpairs",
+                "enabled": True,
+                "mode": "newpairs",
+                "chain": "bsc",
+                "limit": 50,
+                "url": "https://dexscreener.com/bsc",
+                "max_pair_age_hours": 12,
             },
         },
         {
